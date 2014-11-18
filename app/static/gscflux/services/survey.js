@@ -7,7 +7,7 @@ angular.module('gsc.services.survey', []).service('surveys', function(dispatcher
     dispatchToken = dispatcher.register(angular.bind(this, function(action) {
       switch(action.type) {
         case "INITIALIZE_MOCK_SURVEY":
-              survey = {};
+              survey = {subjects: []};
               this.emitChange();
               break;
         case "UPDATE_SURVEY":
@@ -36,7 +36,15 @@ angular.module('gsc.services.survey', []).service('surveys', function(dispatcher
   };
 
   this.updateSurveyAction = function(update) {
-    survey[update.property] = update.value;
+    switch (update.property) {
+      case 'location.importance':
+        survey[update.property] = update.value;
+            break;
+      case 'subjects':
+        survey.subjects.push(update.value);
+            break;
+    }
+
     this.emitChange();
   };
 

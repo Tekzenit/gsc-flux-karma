@@ -10,4 +10,16 @@ angular.module('gsc.actions', ['gsc.eventDispatcher']).service('surveyActions', 
       })
     }
   }
+
+  this.subjects = {
+    add: function(subject) {
+      dispatcher.dispatch({
+        type: "UPDATE_SURVEY",
+        data: {
+          property: "subjects",
+          value: subject
+        }
+      })
+    }
+  }
 });

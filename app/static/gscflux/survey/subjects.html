@@ -1,1 +1,7 @@
-SUBJECTS!
+<button ng-click="addSubject()">Add subject</button>
+
+<ul>
+  <li ng-repeat="subject in subjects track by $index">
+    <test-directive>{{subject}}</test-directive>
+  </li>
+</ul>

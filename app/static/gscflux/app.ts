@@ -1,3 +1,5 @@
+declare var angular;
+
 angular.module('gsc', [
   'gsc.tabs',
   'gsc.survey',

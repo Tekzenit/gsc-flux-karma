@@ -7,6 +7,7 @@ var livereload = require('gulp-livereload');
 var webserver = require('gulp-webserver');
 var sass = require('gulp-sass');
 var inject = require("gulp-inject");
+var typescript = require('gulp-tsc');
 
 var build_options = {
 	'isDev': true
@@ -17,7 +18,7 @@ var external_libraries = [
 ];
 
 gulp.task('build:vendor', function() {
-	gulp.src('./app/noop.js', {read: false})
+	return gulp.src('./app/noop.js', {read: false})
 		.pipe(browserify({
 			debug: process.env.NODE_ENV != 'production'
 		}))
@@ -30,10 +31,9 @@ gulp.task('build:vendor', function() {
 		.pipe(gulp.dest('./build'));
 });
 
-gulp.task('build:app', function() {
-	gulp.src('./app/main.js', {read: false})
+gulp.task('build:appjs', function() {
+	return gulp.src('./app/main.js', {read: false})
 		.pipe(browserify({
-			transform: [],
 			debug: process.env.NODE_ENV != 'production'
 		}))
 		.on('prebundle', function(bundle) {
@@ -42,18 +42,37 @@ gulp.task('build:app', function() {
 			});
 		})
 		.on('error', function(err) {console.error(err)})
-		.pipe(rename('app.js'))
+		.pipe(rename('main.js'))
 		.pipe(gulp.dest('./build'));
 });
 
+gulp.task('build:appts', function() {
+  return gulp.src('./app/static/gscflux/**/*.ts', {read: false})
+    .pipe(typescript())
+    .pipe(gulp.dest('./build/gscflux/'));
+});
+
 gulp.task('move:css', function() {
-  gulp.src('./app/app.scss')
+  return gulp.src('./app/app.scss')
     .pipe(sass())
     .pipe(gulp.dest('./build'));
 });
 
-gulp.task('move:html', function() {
-  var jsFiles = gulp.src('./app/static/gscflux/**/*.js', {read: false});
+gulp.task('move:staticvendor', function() {
+  return gulp.src('./bower_components/**/*')
+    .pipe(gulp.dest('./build/bower_components'));
+});
+
+gulp.task('move:staticapp', function() {
+  return gulp.src(['!./app/static/**/*.ts','./app/static/**/*'])
+    .pipe(gulp.dest('./build'));
+});
+
+gulp.task('move:static', ['move:staticapp']);
+
+
+gulp.task('move:html', ['build:appjs', 'build:appts', 'move:static'], function() {
+  var jsFiles = gulp.src('./build/gscflux/**/*.js', {read: false});
 
 	gulp.src('./app/index.html')
 		.pipe(preprocess({
@@ -61,22 +80,13 @@ gulp.task('move:html', function() {
 		}))
     .pipe(inject(jsFiles, {
       transform: function(filepath, file, i, length) {
-        return '<script src="' +filepath.slice( "/app/static/".length )+ '"></script>';
+        return '<script src="' +filepath.slice( "/build".length )+ '"></script>';
       }
     }))
 		.pipe(gulp.dest('./build'));
 });
 
-gulp.task('move:static', function() {
-  gulp.src('./app/static/**/*')
-    .pipe(gulp.dest('./build'));
-
-  gulp.src('./bower_components/**/*')
-    .pipe(gulp.dest('./build/bower_components'));
-});
-
-
-gulp.task('serve', function() {
+gulp.task('serve', ['move'], function() {
 	gulp.src('./build')
 		.pipe(webserver({
 			port: process.env.PORT || 8000
@@ -95,13 +105,16 @@ gulp.task('watch', function() {
 	};
 
 	watch('./app/index.html', 'move:html');
-	watch('./app/**/*.js', 'build:app');
+	watch('./app/**/*.js', 'build:appjs', 'build:appts');
 	watch('./app/app.scss', 'move:css');
   watch('./app/static/**/*', 'move:static');
 });
 
+gulp.task('build:app', ['build:appts', 'build:appjs']);
+
 gulp.task('build', ['build:vendor', 'build:app']);
 gulp.task('move', ['move:static', 'move:css', 'move:html']);
+
 gulp.task('main', ['build', 'move', 'serve']);
 
 gulp.task('dev', function() {
