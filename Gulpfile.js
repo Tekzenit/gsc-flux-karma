@@ -13,7 +13,7 @@ var build_options = {
 };
 
 var external_libraries = [
-	'jquery', 'angular', 'flux'
+ 'events', 'jquery', 'angular', 'flux'
 ];
 
 gulp.task('build:vendor', function() {
@@ -61,7 +61,7 @@ gulp.task('move:html', function() {
 		}))
     .pipe(inject(jsFiles, {
       transform: function(filepath, file, i, length) {
-        return '<script src="' +filepath.slice( "/app/static".length )+ '"></script>';
+        return '<script src="' +filepath.slice( "/app/static/".length )+ '"></script>';
       }
     }))
 		.pipe(gulp.dest('./build'));
@@ -97,6 +97,7 @@ gulp.task('watch', function() {
 	watch('./app/index.html', 'move:html');
 	watch('./app/**/*.js', 'build:app');
 	watch('./app/app.scss', 'move:css');
+  watch('./app/static/**/*', 'move:static');
 });
 
 gulp.task('build', ['build:vendor', 'build:app']);
