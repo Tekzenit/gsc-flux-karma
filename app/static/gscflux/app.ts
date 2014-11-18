@@ -9,3 +9,4 @@ angular.module('gsc', [
 ]).run(function() {
   console.log("gsc module loaded");
 });
+
