@@ -3,13 +3,28 @@
 
 module GSC.Survey {
   class SurveyController extends ModelController {
-    constructor(private $scope, private surveys: GSC.Services.Survey.SurveyService) {
-      super(surveys);
+    constructor(private surveyService: GSC.Services.Survey.SurveyService, private userService: GSC.Services.User.UserService, private userActions: Services.User.UserActions) {
+      super(surveyService);
+      userService.register(() => this.usersUpdated());
+      this.usersUpdated();
       this.update();
     }
 
+    public survey: any;
+    public currentUser: any;
+    public outerTab: string;
+
     public update() {
-      this.$scope.survey = this.surveys.getSurvey();
+      this.survey = this.surveyService.getSurvey();
+    }
+
+    public logout() {
+      this.userActions.logoutUser();
+    }
+
+    public usersUpdated() {
+      this.currentUser = this.userService.getCurrentUser();
+      this.outerTab = this.currentUser ? 'survey' : 'login';
     }
   }
 
@@ -21,17 +36,17 @@ module GSC.Survey {
 
     .directive('gscSurveyLocation', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/location.html',
-      controller: function($scope, surveyActions) {
-        $scope.setLocationImportance = function(importance) {
+      controller: function(surveyActions) {
+        this.setLocationImportance = function(importance) {
           surveyActions.location.importance(importance);
-          $scope.selectedTab = importance;
+          this.selectedTab = importance;
         }
       }
     }))
 
     .directive('gscSurveySubjects', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/subjects.html',
-      controller: function($scope, surveyActions, surveys) {
+      controller: function(surveyActions, surveyService) {
         var i = 0;
 
         var shuffle = function(o){ //v1.0
@@ -40,12 +55,12 @@ module GSC.Survey {
         };
 
         var updateSubjects = function() {
-          $scope.subjects = shuffle(surveys.getSurvey().subjects);
+          this.subjects = shuffle(surveyService.getSurvey().subjects);
         };
-        surveys.addChangeListener(angular.bind(this, updateSubjects));
+        surveyService.addChangeListener(angular.bind(this, updateSubjects));
         updateSubjects();
 
-        $scope.addSubject = function() {
+        this.addSubject = function() {
           surveyActions.subjects.add({'text': 'subject ' + (++i)});
         }
       }

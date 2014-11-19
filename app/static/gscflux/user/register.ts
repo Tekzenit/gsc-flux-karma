@@ -2,20 +2,34 @@
  /* endinject */
 
 module GSC.User {
+  class UserRegistrationController extends ModelController {
+    constructor(private userService: GSC.Services.User.UserService, private userActions: Services.User.UserActions) {
+      super(userService);
+    }
 
-  class UserController extends ModelController {
-    constructor(private users: GSC.Services.User.UserService) {
-      super(users);
+    public form:any = {};
+    public users = [];
+    public errors;
+
+    submit() {
+      if (this.users.filter((user) => {
+        return user.name == this.form.name;
+      }).length > 0) {
+        this.errors = "User already exists"
+        return;
+      }
+      this.userActions.registerUser(this.form);
     }
 
     public update() {
-      console.log('update!');
+      this.users = this.userService.getUsers()
     }
   }
 
-  angular.module('gsc.user', [])
-    .directive('gscUser', GSC.FluxDirective.createFluxDirective({
-      templateUrl: '',
-      controller: UserController
-    }));
+  angular.module('gsc.user.register', ['gsc.user.login'])
+    .directive('gscRegister', GSC.FluxDirective.createFluxDirective({
+      templateUrl: 'gscflux/user/register.html',
+      controller: UserRegistrationController
+    }))
+  ;
 }

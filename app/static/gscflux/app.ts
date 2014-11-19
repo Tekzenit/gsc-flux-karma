@@ -10,10 +10,11 @@ module GSC {
 
   angular.module('gsc', [
     'gsc.services.survey',
+    'gsc.surveyActions',
+    'gsc.userActions',
     'gsc.services.user',
     'gsc.eventDispatcher',
 
-    'gsc.actions',
     'gsc.tabs',
     'gsc.survey',
     'gsc.user',
