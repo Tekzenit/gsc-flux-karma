@@ -52,7 +52,7 @@ class EntityService {
   }
 }
 
-class Surveys extends EntityService {
+class SurveyService extends EntityService {
   private survey: any;
 
   constructor(dispatcher: Dispatcher) {
@@ -96,4 +96,4 @@ class Surveys extends EntityService {
 }
 
 angular.module('gsc.actions', ['gsc.eventDispatcher']).service('surveyActions', SurveyActions);
-angular.module('gsc.services.survey', []).service('surveys', Surveys);
+angular.module('gsc.services.survey', []).service('surveys', SurveyService);
