@@ -12,7 +12,9 @@ module GSC.Services.Survey {
           type: EventDispatcher.PayloadType.UPDATE_SURVEY,
           data: {
             property: "location.importance",
-            value: importance
+            value: (survey: Services.Survey.ISurveyModel) => {
+              survey.location.importance = importance;
+            }
           }
         })
     };
@@ -22,7 +24,9 @@ module GSC.Services.Survey {
           type: EventDispatcher.PayloadType.UPDATE_SURVEY,
           data: {
             property: "subjects",
-            value: subject
+            value: (survey: Services.Survey.ISurveyModel) => {
+              survey.subjects.push(subject)
+            }
           }
         })
     }

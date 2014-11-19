@@ -13,9 +13,10 @@ module GSC.Survey {
     public survey: any;
     public currentUser: any;
     public outerTab: string;
+    public innerTab: string;
 
     public update() {
-      this.survey = this.surveyService.getSurvey();
+      this.survey = this.surveyService.getCurrentUserSurvey();
     }
 
     public logout() {
@@ -28,6 +29,27 @@ module GSC.Survey {
     }
   }
 
+  class SurveyLocationController extends ModelController {
+    importanceTab: string;
+
+    constructor(private surveyService: Services.Survey.SurveyService, private surveyActions: Services.Survey.SurveyActions) {
+      super(surveyService);
+      this.importanceTab = undefined;
+    }
+
+    public setLocationImportance(importance) {
+      this.surveyActions.location.importance(importance);
+    }
+
+    public update() {
+      var survey = this.surveyService.getCurrentUserSurvey();
+      console.log(survey);
+      if (survey) {
+        this.importanceTab = survey.location.importance ? survey.location.importance : 'choose';
+      }
+    }
+  }
+
   angular.module('gsc.survey', [])
     .directive('gscSurvey', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/survey.html',
@@ -36,17 +58,12 @@ module GSC.Survey {
 
     .directive('gscSurveyLocation', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/location.html',
-      controller: function(surveyActions) {
-        this.setLocationImportance = function(importance) {
-          surveyActions.location.importance(importance);
-          this.selectedTab = importance;
-        }
-      }
+      controller: SurveyLocationController
     }))
 
     .directive('gscSurveySubjects', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/subjects.html',
-      controller: function(surveyActions, surveyService) {
+      controller: function(surveyActions, surveyService: Services.Survey.SurveyService) {
         var i = 0;
 
         var shuffle = function(o){ //v1.0
@@ -55,7 +72,10 @@ module GSC.Survey {
         };
 
         var updateSubjects = function() {
-          this.subjects = shuffle(surveyService.getSurvey().subjects);
+          var survey = surveyService.getCurrentUserSurvey();
+          if (survey) {
+            this.subjects = shuffle(survey.subjects);
+          }
         };
         surveyService.addChangeListener(angular.bind(this, updateSubjects));
         updateSubjects();

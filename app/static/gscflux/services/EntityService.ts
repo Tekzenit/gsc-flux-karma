@@ -7,7 +7,7 @@ module GSC.Services {
     public dispatchToken: string;
     private CHANGE_EVENT = 'change';
 
-    constructor(private dispatcher: EventDispatcher.Dispatcher) {
+    constructor(public dispatcher: EventDispatcher.Dispatcher) {
       var EventEmitter = require('events').EventEmitter;
       this.emitter = new EventEmitter();
 

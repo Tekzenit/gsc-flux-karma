@@ -3,46 +3,81 @@
 
 module GSC.Services.Survey {
 
+  export interface ISurveyLocationModel {
+    importance: string;
+  }
+
+  export interface ISurveyModel {
+    userName: string;
+    subjects: any[];
+    location: ISurveyLocationModel;
+  }
+
   export class SurveyService extends EntityService {
-    private survey: any;
+    private surveys : ISurveyModel[] = [];
+    private currentUser;
 
-    constructor(dispatcher: EventDispatcher.Dispatcher) {
+    constructor(public dispatcher: EventDispatcher.Dispatcher, private userService: Services.User.UserService) {
       super(dispatcher);
-
-      dispatcher.dispatch({
-        type: EventDispatcher.PayloadType.INITIALIZE_MOCK_SURVEY
-      });
     }
 
-    public getSurvey() {
-      var surveyViewModel = angular.copy(this.survey);
+    public getAllSurveys(): ISurveyModel[] {
+      var surveyViewModel = angular.copy(this.surveys);
       Object.freeze(surveyViewModel);
       return surveyViewModel;
     }
 
-    public updateSurveyAction(update) {
-      switch (update.property) {
-        case 'location.importance':
-          this.survey[update.property] = update.value;
-          break;
-        case 'subjects':
-          this.survey.subjects.push(update.value);
-          break;
+    public getCurrentUserSurvey() : ISurveyModel {
+      var survey = this._getCurrentUserSurvey();
+      if (survey) {
+        var surveyViewModel = angular.copy(survey);
+        Object.freeze(surveyViewModel);
+        return surveyViewModel;
       }
-      super.emitChange();
+    }
+
+    private _getCurrentUserSurvey() : ISurveyModel {
+      if (this.currentUser) {
+        var results = this.surveys.filter((survey: any) => {
+          return survey.userName == this.currentUser.name;
+        });
+        if (results.length > 0) {
+          return results[0]
+        }
+      }
+    }
+
+    public updateSurveyAction(data) {
+      var currentUserSurvey = this._getCurrentUserSurvey();
+      if (currentUserSurvey) {
+        data.value(currentUserSurvey);
+      }
     }
 
     public update(payload: EventDispatcher.Payload) {
+      this.dispatcher.waitFor(this.userService.getDispatchToken);
       switch(payload.type) {
-        case EventDispatcher.PayloadType.INITIALIZE_MOCK_SURVEY:
-          this.survey = {subjects: []};
-          super.emitChange();
-          break;
         case EventDispatcher.PayloadType.UPDATE_SURVEY:
           this.updateSurveyAction(payload.data);
           break;
-
+        case EventDispatcher.PayloadType.LOGIN_USER:
+          this.currentUser = payload.data;
+          var results = this.surveys.filter((survey: any) => {
+            return survey.userName == this.currentUser.name;
+          });
+          if (results.length == 0) {
+            this.surveys.push({
+              subjects: [],
+              userName: this.currentUser.name,
+              location: {
+                importance: undefined
+              }
+            });
+          }
+          break;
       }
+
+      this.emitChange();
     }
   }
 

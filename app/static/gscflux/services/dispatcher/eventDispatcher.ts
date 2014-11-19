@@ -5,6 +5,7 @@ module GSC.Services.EventDispatcher {
   export interface Dispatcher {
     dispatch(payload: Payload): void;
     register(callback: (payload: Payload) => void): string;
+    waitFor(ids: any): void;
   }
 
   export interface Payload {

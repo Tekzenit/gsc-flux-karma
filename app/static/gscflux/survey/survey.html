@@ -6,8 +6,9 @@
     <div><a href="" ng-click="view.logout()">Logout</a></div>
 
 
-    <button ng-click="view.selectedTab='location'">location</button> <button ng-click="view.selectedTab='subjects'">subjects</button>
-    <gsc-tabs selected-tab="view.selectedTab">
+    <div>Survey for {{view.currentUser.name}}</div>
+    <button ng-click="view.innerTab='location'">location</button> <button ng-click="view.innerTab='subjects'">subjects</button>
+    <gsc-tabs selected-tab="view.innerTab">
       <gsc-tab name="location">
         <gsc-survey-location></gsc-survey-location>
       </gsc-tab>
@@ -15,6 +16,7 @@
         <gsc-survey-subjects></gsc-survey-subjects>
       </gsc-tab>
     </gsc-tabs>
+
   </gsc-tab>
 </gsc-tabs>
 
