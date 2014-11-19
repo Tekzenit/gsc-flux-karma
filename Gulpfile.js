@@ -9,6 +9,7 @@ var sass = require('gulp-sass');
 var inject = require("gulp-inject");
 var typescript = require('gulp-tsc');
 var gutil = require('gulp-util');
+var karma = require('gulp-karma');
 var debug = require('gulp-debug');
 
 var build_options = {
@@ -89,8 +90,8 @@ gulp.task('build:app:tests', function() {
     .pipe(gulp.dest('./build/gscflux'));
 });
 
-gulp.task('build:app:ts', ['build:app:tests'], function() {
-  return gulp.src(['./app/static/gscflux/**/*.ts', '!./app/static/gscflux/**/*.spec.ts'], {read: false}).pipe(debug())
+gulp.task('build:app:ts', function() {
+  return gulp.src(['./app/static/gscflux/**/*.ts', '!./app/static/gscflux/**/*.spec.ts'], {read: false})
     .pipe(typescript({
       module: 'commonjs',
       out: 'app.js',
@@ -152,7 +153,20 @@ gulp.task('changed:scss', ['build:scss'], function() {
   livereload.changed();
 });
 
-gulp.task('changed:typescript', ['build:app:ts', 'move:static'], function() {
+gulp.task('changed:typescript', ['build:app', 'move:static'], function() {
+
+  gulp.src([
+    'build/vendor.js',
+    'build/main.js',
+    'build/**/*.js',
+    'build/**/*.spec.js'
+  ]).pipe(karma({
+    configFile: 'karma.conf.js',
+    action: 'run'
+  })).on('error', function() {
+    console.log(arguments);
+  });
+
   livereload.changed();
 });
 
@@ -164,7 +178,7 @@ gulp.task('watch', ['main'], function() {
   gulp.watch(['./app/static/**/*.ts'], ['changed:typescript'])
 });
 
-gulp.task('build:app', ['build:app:ts', 'build:app:js']);
+gulp.task('build:app', ['build:app:ts', 'build:app:js', 'build:app:tests']);
 gulp.task('build', ['build:scss', 'build:vendor', 'build:app']);
 gulp.task('move', ['move:vendor', 'move:static', 'move:html']);
 

@@ -1,8 +1,13 @@
-/* inject:ts */ /// <reference path="../references.ts" />
-/* endinject */
-
 /// <reference path="../../../../typings/jasmine/jasmine.d.ts" />
 
-describe('a suite', () => {
-  it('contains spec with an expectation', () => expect(true).toBe(true));
+describe('FluxDirective', () => {
+  it('has a function called createFluxDirective that is a function that returns a function', () => {
+    expect(typeof(GSC.FluxDirective.createFluxDirective)).toEqual(('function'));
+    var directive = GSC.FluxDirective.createFluxDirective({
+      'template': "<p>Hello</p>",
+      controller: () => undefined
+    });
+    expect(typeof(directive)).toEqual('function')
+    expect(GSC.FluxDirective.TestVal).toEqual("test");
+  })
 });

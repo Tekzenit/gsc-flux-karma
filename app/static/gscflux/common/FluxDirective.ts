@@ -6,6 +6,8 @@ module GSC.FluxDirective{
     scope?: any;
   }
 
+  export var TestVal = 'test';
+
   export function createFluxDirective(params: FluxDirectiveParameters, name?: string) {
     var directive : any = {
       controller: params.controller,

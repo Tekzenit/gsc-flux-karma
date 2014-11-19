@@ -15,7 +15,7 @@ module GSC.User {
       if (this.users.filter((user) => {
         return user.name == this.form.name;
       }).length > 0) {
-        this.errors = "User already exists"
+        this.errors = "User already exists!"
         return;
       }
       this.userActions.registerUser(this.form);

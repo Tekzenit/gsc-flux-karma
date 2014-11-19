@@ -44,7 +44,6 @@ module GSC.Survey {
 
     public update() {
       var survey = this.surveyService.getCurrentUserSurvey();
-      console.log(survey);
       if (survey) {
         this.importanceTab = survey.location.importance ? survey.location.importance : 'choose';
       }
