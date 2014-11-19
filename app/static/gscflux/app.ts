@@ -1,4 +1,6 @@
 declare var angular;
+declare var require;
+
 angular.module('gsc', [
   'gsc.tabs',
   'gsc.survey',
