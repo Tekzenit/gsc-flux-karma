@@ -4,23 +4,23 @@ class Surveys {
   private survey: any;
   private dispatchToken: any;
 
-  constructor(dispatcher: any) {
+  constructor(dispatcher: Dispatcher) {
     var EventEmitter = require('events').EventEmitter;
     this.emitter = new EventEmitter();
-    this.dispatchToken = dispatcher.register((action) => {
-      switch(action.type) {
-        case "INITIALIZE_MOCK_SURVEY":
+    this.dispatchToken = dispatcher.register((payload) => {
+      switch(payload.type) {
+        case PayloadType.INITIALIZE_MOCK_SURVEY:
               this.survey = {subjects: []};
               this.emitChange();
               break;
-        case "UPDATE_SURVEY":
-              this.updateSurveyAction(action.data);
+        case PayloadType.UPDATE_SURVEY:
+              this.updateSurveyAction(payload.data);
               break;
       }
     });
 
     dispatcher.dispatch({
-      type: 'INITIALIZE_MOCK_SURVEY'
+      type: PayloadType.INITIALIZE_MOCK_SURVEY
     })
   }
 

@@ -2,11 +2,11 @@ class SurveyActions {
   public location;
   public subjects;
   
-  constructor(dispatcher) {
+  constructor(dispatcher: Dispatcher) {
     this.location = {
       importance: function(importance) {
         dispatcher.dispatch({
-          type: "UPDATE_SURVEY",
+          type: PayloadType.UPDATE_SURVEY,
           data: {
             property: "location.importance",
             value: importance
@@ -18,7 +18,7 @@ class SurveyActions {
     this.subjects = {
       add: function(subject) {
         dispatcher.dispatch({
-          type: "UPDATE_SURVEY",
+          type: PayloadType.UPDATE_SURVEY,
           data: {
             property: "subjects",
             value: subject
