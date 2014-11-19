@@ -8,6 +8,7 @@ var webserver = require('gulp-webserver');
 var sass = require('gulp-sass');
 var inject = require("gulp-inject");
 var typescript = require('gulp-tsc');
+var gutil = require('gulp-util');
 var debug = require('gulp-debug');
 
 var build_options = {
@@ -77,20 +78,32 @@ gulp.task('build:app:ts:references', function() {
   });
 });
 
-gulp.task('build:app:ts', function() {
-  return gulp.src('./app/static/gscflux/**/*.ts', {read: false})
+gulp.task('build:app:tests', function() {
+  return gulp.src(['./app/static/gscflux/**/*.spec.ts'], {read: false})
+    .pipe(typescript({
+      module: 'commonjs',
+      out: 'app.spec.js',
+      sourcemap: true,
+      outDir: './app/static/gscflux'
+    })).on('error', gutil.log)
+    .pipe(gulp.dest('./build/gscflux'));
+});
+
+gulp.task('build:app:ts', ['build:app:tests'], function() {
+  return gulp.src(['./app/static/gscflux/**/*.ts', '!./app/static/gscflux/**/*.spec.ts'], {read: false}).pipe(debug())
     .pipe(typescript({
       module: 'commonjs',
       out: 'app.js',
       sourcemap: true,
       outDir: './app/static/gscflux'
-    }))
+    })).on('error', gutil.log)
     .pipe(gulp.dest('./build/gscflux'));
 });
 
 gulp.task('build:scss', function() {
   return gulp.src('./app/app.scss')
     .pipe(sass())
+    .on('error', gutil.log)
     .pipe(gulp.dest('./build'));
 });
 
@@ -105,7 +118,7 @@ gulp.task('move:static', function() {
 });
 
 gulp.task('move:html', ['move:static'], function() {
-  var jsFiles = gulp.src('./build/gscflux/**/*.js', {read: false});
+  var jsFiles = gulp.src(['!./build/gscflux/**/*.spec.js', './build/gscflux/**/*.js'], {read: false});
 
 	gulp.src('./app/index.html')
 		.pipe(preprocess({
@@ -113,7 +126,7 @@ gulp.task('move:html', ['move:static'], function() {
 		}))
     .pipe(inject(jsFiles, {
       transform: function(filepath, file, i, length) {
-        return '<script src="' +filepath.slice( "/build".length )+ '"></script>';
+        return '<script src="' +filepath.slice( "/build/".length )+ '"></script>';
       }
     }))
 	.pipe(gulp.dest('./build'));

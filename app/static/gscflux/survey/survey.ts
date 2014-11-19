@@ -35,6 +35,7 @@ module GSC.Survey {
     constructor(private surveyService: Services.Survey.SurveyService, private surveyActions: Services.Survey.SurveyActions) {
       super(surveyService);
       this.importanceTab = undefined;
+      this.update();
     }
 
     public setLocationImportance(importance) {
@@ -47,6 +48,30 @@ module GSC.Survey {
       if (survey) {
         this.importanceTab = survey.location.importance ? survey.location.importance : 'choose';
       }
+    }
+  }
+
+  class SurveySubjectsController extends ModelController {
+    constructor(private surveyActions, private surveyService: Services.Survey.SurveyService) {
+      super(surveyService);
+        this.update();
+    }
+
+    public subjects;
+
+    public update() {
+      var survey = this.surveyService.getCurrentUserSurvey();
+      if (survey) {
+        var shuffle = function(o){ //v1.0
+          for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+          return o;
+        };
+        this.subjects = shuffle(survey.subjects);
+      }
+    }
+
+    public addSubject() {
+      this.surveyActions.subjects.add({'text': 'subject ' + Math.random()});
     }
   }
 
@@ -63,27 +88,7 @@ module GSC.Survey {
 
     .directive('gscSurveySubjects', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/subjects.html',
-      controller: function(surveyActions, surveyService: Services.Survey.SurveyService) {
-        var i = 0;
-
-        var shuffle = function(o){ //v1.0
-          for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-          return o;
-        };
-
-        var updateSubjects = function() {
-          var survey = surveyService.getCurrentUserSurvey();
-          if (survey) {
-            this.subjects = shuffle(survey.subjects);
-          }
-        };
-        surveyService.addChangeListener(angular.bind(this, updateSubjects));
-        updateSubjects();
-
-        this.addSubject = function() {
-          surveyActions.subjects.add({'text': 'subject ' + (++i)});
-        }
-      }
+      controller: SurveySubjectsController
     }));
 
 }

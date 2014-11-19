@@ -32,7 +32,7 @@ module GSC.Services {
     }
 
     public update(payload: EventDispatcher.Payload) {
-
+      this.emitChange();
     }
   }
 }

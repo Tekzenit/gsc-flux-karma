@@ -37,7 +37,8 @@ module GSC.Services.User {
             this.currentUser = null;
             break;
       }
-      this.emitChange();
+
+      super.update(payload);
     }
   }
 

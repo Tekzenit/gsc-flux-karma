@@ -1,6 +1,3 @@
-/* inject:ts */ /// <reference path="../references.ts" />
- /* endinject */
-
 module GSC.FluxDirective{
   export interface FluxDirectiveParameters {
     templateUrl?: string;

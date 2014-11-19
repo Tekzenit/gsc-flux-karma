@@ -77,7 +77,7 @@ module GSC.Services.Survey {
           break;
       }
 
-      this.emitChange();
+      super.update(payload);
     }
   }
 
