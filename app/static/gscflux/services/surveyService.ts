@@ -1,35 +1,16 @@
-class Surveys {
+class EntityService {
   private emitter: any;
+  public dispatchToken: string;
   private CHANGE_EVENT = 'change';
-  private survey: any;
-  private dispatchToken: any;
 
-  constructor(dispatcher: Dispatcher) {
+  constructor(private dispatcher: Dispatcher) {
     var EventEmitter = require('events').EventEmitter;
     this.emitter = new EventEmitter();
-    this.dispatchToken = dispatcher.register((payload) => {
-      switch(payload.type) {
-        case PayloadType.INITIALIZE_MOCK_SURVEY:
-              this.survey = {subjects: []};
-              this.emitChange();
-              break;
-        case PayloadType.UPDATE_SURVEY:
-              this.updateSurveyAction(payload.data);
-              break;
-      }
-    });
-
-    dispatcher.dispatch({
-      type: PayloadType.INITIALIZE_MOCK_SURVEY
-    })
   }
 
-  public getSurvey() {
-    var surveyViewModel = angular.copy(this.survey);
-    Object.freeze(surveyViewModel);
-    return surveyViewModel;
+  protected register(callback: (payload: Payload) => void): void {
+    this.dispatchToken = this.dispatcher.register(callback);
   }
-
 
   public addChangeListener(callback) {
     this.emitter.on(this.CHANGE_EVENT, callback);
@@ -43,8 +24,37 @@ class Surveys {
   public getDispatchToken() {
     return this.dispatchToken;
   }
+}
 
+class Surveys extends EntityService {
+  private survey: any;
 
+  constructor(dispatcher: Dispatcher) {
+    super(dispatcher);
+
+    super.register((payload) => {
+
+      switch(payload.type) {
+        case PayloadType.INITIALIZE_MOCK_SURVEY:
+              this.survey = {subjects: []};
+              this.emitChange();
+              break;
+        case PayloadType.UPDATE_SURVEY:
+              this.updateSurveyAction(payload.data);
+              break;
+      }
+    })
+
+    dispatcher.dispatch({
+      type: PayloadType.INITIALIZE_MOCK_SURVEY
+    });
+  }
+
+  public getSurvey() {
+    var surveyViewModel = angular.copy(this.survey);
+    Object.freeze(surveyViewModel);
+    return surveyViewModel;
+  }
 
   public updateSurveyAction(update) {
     switch (update.property) {
@@ -55,7 +65,6 @@ class Surveys {
         this.survey.subjects.push(update.value);
             break;
     }
-
     this.emitChange();
   }
 

@@ -1,31 +1,26 @@
 class SurveyActions {
-  public location;
-  public subjects;
-  
-  constructor(dispatcher: Dispatcher) {
-    this.location = {
-      importance: function(importance) {
-        dispatcher.dispatch({
+  public location = {
+      importance: (importance) => 
+        this.dispatcher.dispatch({
           type: PayloadType.UPDATE_SURVEY,
           data: {
             property: "location.importance",
             value: importance
           }
         })
-      }
     }
-
-    this.subjects = {
-      add: function(subject) {
-        dispatcher.dispatch({
+  public subjects = {
+      add: (subject) => 
+        this.dispatcher.dispatch({
           type: PayloadType.UPDATE_SURVEY,
           data: {
             property: "subjects",
             value: subject
           }
         })
-      }
     }
+  
+  constructor(private dispatcher: Dispatcher) {
   }
 }
 angular.module('gsc.actions', ['gsc.eventDispatcher']).service('surveyActions', SurveyActions);
