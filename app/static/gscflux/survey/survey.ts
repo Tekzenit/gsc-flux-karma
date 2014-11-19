@@ -1,14 +1,7 @@
+/* inject:ts */ /// <reference path="../references.ts" />
+ /* endinject */
+
 module GSC.Survey {
-  class ModelController {
-    constructor(private service : Services.EntityService) {
-      service.addChangeListener(() => this.update);
-    }
-
-    public update() {
-
-    }
-  }
-
   class SurveyController extends ModelController {
     constructor(private $scope, private surveys: GSC.Services.Survey.SurveyService) {
       super(surveys);
@@ -21,22 +14,22 @@ module GSC.Survey {
   }
 
   angular.module('gsc.survey', [])
-    .directive('gscSurvey', GSC.createFluxDirective({
+    .directive('gscSurvey', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/survey.html',
       controller: SurveyController
     }))
 
-    .directive('gscSurveyLocation', GSC.createFluxDirective({
+    .directive('gscSurveyLocation', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/location.html',
       controller: function($scope, surveyActions) {
         $scope.setLocationImportance = function(importance) {
           surveyActions.location.importance(importance);
           $scope.selectedTab = importance;
         }
-      },
+      }
     }))
 
-    .directive('gscSurveySubjects', GSC.createFluxDirective({
+    .directive('gscSurveySubjects', GSC.FluxDirective.createFluxDirective({
       templateUrl: 'gscflux/survey/subjects.html',
       controller: function($scope, surveyActions, surveys) {
         var i = 0;

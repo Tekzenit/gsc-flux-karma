@@ -1,3 +1,6 @@
+/* inject:ts */ /// <reference path="../../references.ts" />
+ /* endinject */
+
 module GSC.Services.EventDispatcher {
   export interface Dispatcher {
     dispatch(payload: Payload): void;

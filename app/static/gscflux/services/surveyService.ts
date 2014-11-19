@@ -1,3 +1,6 @@
+/* inject:ts */ /// <reference path="../references.ts" />
+ /* endinject */
+
 module GSC.Services.Survey {
   export class SurveyActions {
     constructor(private dispatcher: EventDispatcher.Dispatcher) {
@@ -11,7 +14,7 @@ module GSC.Services.Survey {
             value: importance
           }
         })
-    }
+    };
     public subjects = {
       add: (subject) =>
         this.dispatcher.dispatch({
@@ -29,18 +32,6 @@ module GSC.Services.Survey {
 
     constructor(dispatcher: EventDispatcher.Dispatcher) {
       super(dispatcher);
-
-      super.register((payload) => {
-        switch(payload.type) {
-          case EventDispatcher.PayloadType.INITIALIZE_MOCK_SURVEY:
-            this.survey = {subjects: []};
-            this.emitChange();
-            break;
-          case EventDispatcher.PayloadType.UPDATE_SURVEY:
-            this.updateSurveyAction(payload.data);
-            break;
-        }
-      })
 
       dispatcher.dispatch({
         type: EventDispatcher.PayloadType.INITIALIZE_MOCK_SURVEY
@@ -62,7 +53,19 @@ module GSC.Services.Survey {
           this.survey.subjects.push(update.value);
           break;
       }
-      this.emitChange();
+      super.emitChange();
+    }
+
+    public update(payload: EventDispatcher.Payload) {
+      switch(payload.type) {
+        case EventDispatcher.PayloadType.INITIALIZE_MOCK_SURVEY:
+          this.survey = {subjects: []};
+          super.emitChange();
+          break;
+        case EventDispatcher.PayloadType.UPDATE_SURVEY:
+          this.updateSurveyAction(payload.data);
+          break;
+      }
     }
   }
 

@@ -8,6 +8,7 @@ var webserver = require('gulp-webserver');
 var sass = require('gulp-sass');
 var inject = require("gulp-inject");
 var typescript = require('gulp-tsc');
+var debug = require('gulp-debug');
 
 var build_options = {
 	'isDev': true
@@ -44,6 +45,36 @@ gulp.task('build:app:js', function() {
 		.on('error', function(err) {console.error(err)})
 		.pipe(rename('main.js'))
 		.pipe(gulp.dest('./build'));
+});
+
+gulp.task('build:app:ts:references', function() {
+
+  var files = gulp.src(['!./app/static/gscflux/references.ts','./app/static/gscflux/**/*.ts']);
+
+  gulp.src('./app/static/gscflux/references.ts').pipe(inject(files, {
+    transform: function(filepath, file, i, length) {
+      return '/// <reference path="' + filepath + '" />\n';
+    },
+    relative: true,
+    starttag: '/* {{name}}:{{ext}} */',
+    endtag: '/* endinject */'
+  })).pipe(gulp.dest('./app/static/gscflux')).on('end', function() {
+
+    var referenceFile = gulp.src('./app/static/gscflux/references.ts');
+
+    gulp.src(['!./app/static/gscflux/references.ts','./app/static/gscflux/**/*.ts']).pipe(inject(referenceFile, {
+      transform: function(filepath, file, i, length) {
+        return '/// <reference path="' + filepath + '" />\n';
+      },
+      relative: true,
+      starttag: '/* {{name}}:{{ext}} */',
+      endtag: '/* endinject */'
+    })).pipe(gulp.dest('./app/static/gscflux')).on('end', function() {
+      console.log('over');
+    });
+
+
+  });
 });
 
 gulp.task('build:app:ts', function() {
@@ -115,6 +146,7 @@ gulp.task('changed:typescript', ['build:app:ts', 'move:static'], function() {
 gulp.task('watch', ['main'], function() {
   gulp.watch(['./app/index.html'], ['changed:index:html']);
   gulp.watch(['./app/static/**/*.html'], ['changed:static']);
+  gulp.watch(['./app/static/**/*.js'], ['changed:static']);
   gulp.watch(['./app/**/*.scss'], ['changed:scss']);
   gulp.watch(['./app/static/**/*.ts'], ['changed:typescript'])
 });

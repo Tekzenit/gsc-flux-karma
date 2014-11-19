@@ -1,29 +1,21 @@
-declare var angular;
+/* inject:ts */ /// <reference path="references.ts" />
+ /* endinject */
+
+var angular: ng.IAngularStatic = window['angular'];
 declare var EventEmitter;
 declare function require(name: string);
 
 module GSC {
-  console.log('inside gsc module')
-  export interface FluxDirectiveParameters {
-    templateUrl: string;
-    controller: any;
-    scope?: any;
-  }
-
-  export function createFluxDirective(params: FluxDirectiveParameters) {
-    var directive = {
-      templateUrl: params.templateUrl,
-      controller: params.controller,
-      scope: params.scope ? angular.extend({}, params.scope) : {},
-    };
-    return () => directive;
-  }
+  console.log('running gsc module');
 
   angular.module('gsc', [
+    'gsc.services.survey',
+    'gsc.services.user',
+    'gsc.eventDispatcher',
+
+    'gsc.actions',
     'gsc.tabs',
     'gsc.survey',
-    'gsc.services.survey',
-    'gsc.eventDispatcher',
-    'gsc.actions',
+    'gsc.user',
   ]);
 }

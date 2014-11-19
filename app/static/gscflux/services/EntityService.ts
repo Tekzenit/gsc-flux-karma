@@ -1,3 +1,6 @@
+/* inject:ts */ /// <reference path="../references.ts" />
+ /* endinject */
+
 module GSC.Services {
   export class EntityService {
     private emitter: any;
@@ -7,6 +10,8 @@ module GSC.Services {
     constructor(private dispatcher: EventDispatcher.Dispatcher) {
       var EventEmitter = require('events').EventEmitter;
       this.emitter = new EventEmitter();
+
+      this.register((payload) => this.update(payload));
     }
 
     public register(callback: (payload: EventDispatcher.Payload) => void): void {
@@ -24,6 +29,10 @@ module GSC.Services {
     }
     public getDispatchToken() {
       return this.dispatchToken;
+    }
+
+    public update(payload: EventDispatcher.Payload) {
+
     }
   }
 }
