@@ -10,10 +10,10 @@ class ModelView {
 }
 
 angular.module('gsc.survey', [])
-.directive('gscSurvey', function(surveys, dispatcher) {
+.directive('gscSurvey', function() {
 	return {
 		templateUrl: 'gscflux/survey/survey.html',
-		controller: function($scope) {
+		controller: function($scope, surveys) {
 			var updateSurvey = function() {
 				$scope.survey = surveys.getSurvey();
 			};

@@ -1,3 +1,29 @@
+class SurveyActions {
+  public location = {
+      importance: (importance) => 
+        this.dispatcher.dispatch({
+          type: PayloadType.UPDATE_SURVEY,
+          data: {
+            property: "location.importance",
+            value: importance
+          }
+        })
+    }
+  public subjects = {
+      add: (subject) => 
+        this.dispatcher.dispatch({
+          type: PayloadType.UPDATE_SURVEY,
+          data: {
+            property: "subjects",
+            value: subject
+          }
+        })
+    }
+  
+  constructor(private dispatcher: Dispatcher) {
+  }
+}
+
 class EntityService {
   private emitter: any;
   public dispatchToken: string;
@@ -33,7 +59,6 @@ class Surveys extends EntityService {
     super(dispatcher);
 
     super.register((payload) => {
-
       switch(payload.type) {
         case PayloadType.INITIALIZE_MOCK_SURVEY:
               this.survey = {subjects: []};
@@ -70,4 +95,5 @@ class Surveys extends EntityService {
 
 }
 
+angular.module('gsc.actions', ['gsc.eventDispatcher']).service('surveyActions', SurveyActions);
 angular.module('gsc.services.survey', []).service('surveys', Surveys);
