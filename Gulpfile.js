@@ -48,11 +48,16 @@ gulp.task('build:app:js', function() {
 
 gulp.task('build:app:ts', function() {
   return gulp.src('./app/static/gscflux/**/*.ts', {read: false})
-    .pipe(typescript())
-    .pipe(gulp.dest('./build/gscflux/'));
+    .pipe(typescript({
+      module: 'commonjs',
+      out: 'app.js',
+      sourcemap: true,
+      outDir: './app/static/gscflux'
+    }))
+    .pipe(gulp.dest('./build/gscflux'));
 });
 
-gulp.task('move:scss', function() {
+gulp.task('build:scss', function() {
   return gulp.src('./app/app.scss')
     .pipe(sass())
     .pipe(gulp.dest('./build'));
@@ -63,12 +68,12 @@ gulp.task('move:vendor', function() {
     .pipe(gulp.dest('./build/bower_components'));
 });
 
-gulp.task('move:app', function() {
-  return gulp.src(['!./app/static/**/*.ts','./app/static/**/*'])
+gulp.task('move:static', function() {
+  return gulp.src(['./app/static/**/*'])
     .pipe(gulp.dest('./build'));
 });
 
-gulp.task('move:html', ['build:app:js', 'build:app:ts', 'move:app'], function() {
+gulp.task('move:html', ['move:static'], function() {
   var jsFiles = gulp.src('./build/gscflux/**/*.js', {read: false});
 
 	gulp.src('./app/index.html')
@@ -91,22 +96,32 @@ gulp.task('serve', ['move'], function() {
   livereload.listen();
 });
 
-gulp.task('watch', ['main'], function() {
-	gulp.watch(['./app/index.html'], ['move:html']);
-	gulp.watch(['./app/**/*.js'], ['build:app:js']);
-	gulp.watch(['./app/**/*.ts'], ['build:app:ts']);
-	gulp.watch(['./app/**.*.scss'], ['move:scss']);
-	gulp.watch(['./app/static/**/*.ts','./app/static/**/*'], ['move:app']);
+gulp.task('changed:index:html', ['move:html'], function() {
+  livereload.changed();
+});
 
-	gulp.watch(['./build/**/*']).on('change', function(file) {
-		livereload.changed(file.path)
-	});
+gulp.task('changed:static', ['move:static'], function() {
+  livereload.changed();
+});
+
+gulp.task('changed:scss', ['build:scss'], function() {
+  livereload.changed();
+});
+
+gulp.task('changed:typescript', ['build:app:ts', 'move:static'], function() {
+  livereload.changed();
+});
+
+gulp.task('watch', ['main'], function() {
+  gulp.watch(['./app/index.html'], ['changed:index:html']);
+  gulp.watch(['./app/static/**/*.html'], ['changed:static']);
+  gulp.watch(['./app/**/*.scss'], ['changed:scss']);
+  gulp.watch(['./app/static/**/*.ts'], ['changed:typescript'])
 });
 
 gulp.task('build:app', ['build:app:ts', 'build:app:js']);
-
-gulp.task('build', ['build:vendor', 'build:app']);
-gulp.task('move', ['move:vendor', 'move:app', 'move:scss', 'move:html']);
+gulp.task('build', ['build:scss', 'build:vendor', 'build:app']);
+gulp.task('move', ['move:vendor', 'move:static', 'move:html']);
 
 gulp.task('main', ['build', 'move', 'serve']);
 
