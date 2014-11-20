@@ -1,21 +1,26 @@
 
 module GSC.Services.User {
-  export var test = "123";
-  export class UserService extends EntityService {
-    private users: any = [];
-    private currentUser;
+
+  export interface IUserService {
+    getUsers() : IUserModel[];
+    getCurrentUser() : IUserModel;
+  }
+
+  export class UserService extends EntityService implements IUserService {
+    private users: IUserModel[] = [];
+    private currentUser: IUserModel;
 
     constructor(public dispatcher: EventDispatcher.Dispatcher) {
       super(dispatcher);
     }
 
-    public getUsers() {
+    public getUsers() : IUserModel[] {
       var userViewModel = angular.copy(this.users);
       Object.freeze(userViewModel);
       return userViewModel;
     }
 
-    public getCurrentUser() {
+    public getCurrentUser() : IUserModel {
       if (!this.currentUser) {
         return undefined;
       }
@@ -28,6 +33,10 @@ module GSC.Services.User {
     public update(payload: EventDispatcher.Payload) {
       switch(payload.type) {
         case Services.EventDispatcher.PayloadType.REGISTER_USER:
+            if (this.users.filter(user => user.name == payload.data.name).length != 0) {
+              throw new Error('User already exists, can\'t register');
+            }
+
             this.users.push(payload.data);
             break;
         case Services.EventDispatcher.PayloadType.LOGIN_USER:
@@ -42,5 +51,5 @@ module GSC.Services.User {
     }
   }
 
-  angular.module('gsc.services.user', []).service('userService', UserService);
+  angular.module('gsc.services.user', ['gsc.eventDispatcher']).service('userService', UserService);
 }

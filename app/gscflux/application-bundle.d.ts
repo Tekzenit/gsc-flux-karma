@@ -83,6 +83,8 @@ declare module GSC.Services.Survey {
         subjects: any[];
         location: ISurveyLocationModel;
     }
+}
+declare module GSC.Services.Survey {
     class SurveyService extends EntityService {
         public dispatcher: EventDispatcher.Dispatcher;
         private userService;
@@ -100,20 +102,39 @@ declare module GSC.Services.User {
     class UserActions {
         private dispatcher;
         constructor(dispatcher: EventDispatcher.Dispatcher);
-        public registerUser(user: any): void;
-        public loginUser(user: any): void;
-        public logoutUser(): void;
+        public registerUser(user: IUserModel): {
+            type: EventDispatcher.PayloadType;
+            data: IUserModel;
+        };
+        public loginUser(user: IUserModel): {
+            type: EventDispatcher.PayloadType;
+            data: IUserModel;
+        };
+        public logoutUser(): {
+            type: EventDispatcher.PayloadType;
+        };
+    }
+}
+/**
+* Created by desmond on 11/20/2014.
+*/
+declare module GSC.Services.User {
+    interface IUserModel {
+        name: string;
     }
 }
 declare module GSC.Services.User {
-    var test: string;
-    class UserService extends EntityService {
+    interface IUserService {
+        getUsers(): IUserModel[];
+        getCurrentUser(): IUserModel;
+    }
+    class UserService extends EntityService implements IUserService {
         public dispatcher: EventDispatcher.Dispatcher;
         private users;
         private currentUser;
         constructor(dispatcher: EventDispatcher.Dispatcher);
-        public getUsers(): any;
-        public getCurrentUser(): any;
+        public getUsers(): IUserModel[];
+        public getCurrentUser(): IUserModel;
         public update(payload: EventDispatcher.Payload): void;
     }
 }

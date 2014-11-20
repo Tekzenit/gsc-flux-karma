@@ -74,7 +74,7 @@ gulp.task('build:ts', function() {
       //sourcemap: true,
       declaration: true,
       out: 'application-bundle.js',
-      outDir: './app/gscflux'
+      outDir: './app/gscflux/'
     })).on('error', gutil.log)
     .pipe(gulp.dest('./app/gscflux/'));
 });
@@ -86,7 +86,8 @@ gulp.task('build:specs', function() {
       module: 'commonjs',
       //sourcemap: true,
       declaration: true,
-      out: 'tests-bundle.js'
+      out: 'tests-bundle.js',
+      outDir: './app/gscflux/'
     })).on('error', gutil.log)
     .pipe(gulp.dest('./app/gscflux'));
 });

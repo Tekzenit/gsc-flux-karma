@@ -17,27 +17,33 @@ module.exports = function(config) {
     files: [
       'vendor.js',
       'bundle.js',
+      // angular is included by bundle.js
+      '../node_modules/angular-mocks/angular-mocks.js',
+      '../bower_components/angular-specs/src/angular-specs.js',
+
       'gscflux/gscTabs.js',
       'gscflux/application-bundle.js',
+
       'gscflux/tests-bundle.js'
     ],
 
 
     // list of files to exclude
     exclude: [
+
     ],
 
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      'gscflux/application-bundle.js': ['coverage']
     },
-
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage', 'html'],
 
 
     // web server port

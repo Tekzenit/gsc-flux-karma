@@ -433,7 +433,7 @@ var GSC;
             })(Services.EntityService);
             Survey.SurveyService = SurveyService;
 
-            angular.module('gsc.services.survey', []).service('surveyService', SurveyService);
+            angular.module('gsc.services.survey', ['gsc.eventDispatcher', 'gsc.services.user']).service('surveyService', SurveyService);
         })(Services.Survey || (Services.Survey = {}));
         var Survey = Services.Survey;
     })(GSC.Services || (GSC.Services = {}));
@@ -450,29 +450,35 @@ var GSC;
                     this.dispatcher = dispatcher;
                 }
                 UserActions.prototype.registerUser = function (user) {
-                    this.dispatcher.dispatch({
+                    var payload = {
                         type: 2 /* REGISTER_USER */,
                         data: angular.copy(user)
-                    });
+                    };
+                    this.dispatcher.dispatch(payload);
+                    return payload;
                 };
 
                 UserActions.prototype.loginUser = function (user) {
-                    this.dispatcher.dispatch({
+                    var payload = {
                         type: 3 /* LOGIN_USER */,
                         data: angular.copy(user)
-                    });
+                    };
+                    this.dispatcher.dispatch(payload);
+                    return payload;
                 };
 
                 UserActions.prototype.logoutUser = function () {
-                    this.dispatcher.dispatch({
+                    var payload = {
                         type: 4 /* LOGOUT_USER */
-                    });
+                    };
+                    this.dispatcher.dispatch(payload);
+                    return payload;
                 };
                 return UserActions;
             })();
             User.UserActions = UserActions;
 
-            angular.module('gsc.userActions', []).service('userActions', UserActions);
+            angular.module('gsc.userActions', ['gsc.eventDispatcher']).service('userActions', UserActions);
         })(Services.User || (Services.User = {}));
         var User = Services.User;
     })(GSC.Services || (GSC.Services = {}));
@@ -482,7 +488,6 @@ var GSC;
 (function (GSC) {
     (function (Services) {
         (function (User) {
-            User.test = "123";
             var UserService = (function (_super) {
                 __extends(UserService, _super);
                 function UserService(dispatcher) {
@@ -509,6 +514,12 @@ var GSC;
                 UserService.prototype.update = function (payload) {
                     switch (payload.type) {
                         case 2 /* REGISTER_USER */:
+                            if (this.users.filter(function (user) {
+                                return user.name == payload.data.name;
+                            }).length != 0) {
+                                throw new Error('User already exists, can\'t register');
+                            }
+
                             this.users.push(payload.data);
                             break;
                         case 3 /* LOGIN_USER */:
@@ -525,7 +536,7 @@ var GSC;
             })(Services.EntityService);
             User.UserService = UserService;
 
-            angular.module('gsc.services.user', []).service('userService', UserService);
+            angular.module('gsc.services.user', ['gsc.eventDispatcher']).service('userService', UserService);
         })(Services.User || (Services.User = {}));
         var User = Services.User;
     })(GSC.Services || (GSC.Services = {}));

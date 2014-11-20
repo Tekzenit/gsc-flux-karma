@@ -2,20 +2,9 @@
 /* endinject */
 
 module GSC.Services.Survey {
-
-  export interface ISurveyLocationModel {
-    importance: string;
-  }
-
-  export interface ISurveyModel {
-    userName: string;
-    subjects: any[];
-    location: ISurveyLocationModel;
-  }
-
   export class SurveyService extends EntityService {
     private surveys : ISurveyModel[] = [];
-    private currentUser;
+    private currentUser : Services.User.IUserModel;
 
     constructor(public dispatcher: EventDispatcher.Dispatcher, private userService: Services.User.UserService) {
       super(dispatcher);
@@ -81,5 +70,5 @@ module GSC.Services.Survey {
     }
   }
 
-  angular.module('gsc.services.survey', []).service('surveyService', SurveyService);
+  angular.module('gsc.services.survey', ['gsc.eventDispatcher', 'gsc.services.user']).service('surveyService', SurveyService);
 }

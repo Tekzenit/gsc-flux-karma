@@ -6,26 +6,32 @@ module GSC.Services.User {
     constructor(private dispatcher: EventDispatcher.Dispatcher) {
     }
 
-    public registerUser(user: any) {
-      this.dispatcher.dispatch({
+    public registerUser(user: IUserModel) {
+      var payload = {
         type: EventDispatcher.PayloadType.REGISTER_USER,
         data: angular.copy(user)
-      });
+      };
+      this.dispatcher.dispatch(payload);
+      return payload;
     }
 
-    public loginUser(user: any) {
-      this.dispatcher.dispatch({
+    public loginUser(user: IUserModel) {
+      var payload = {
         type: EventDispatcher.PayloadType.LOGIN_USER,
         data: angular.copy(user)
-      })
+      };
+      this.dispatcher.dispatch(payload);
+      return payload;
     }
 
     public logoutUser() {
-      this.dispatcher.dispatch({
+      var payload = {
         type: EventDispatcher.PayloadType.LOGOUT_USER
-      })
+      };
+      this.dispatcher.dispatch(payload);
+      return payload;
     }
   }
 
-  angular.module('gsc.userActions', []).service('userActions', UserActions);
+  angular.module('gsc.userActions', ['gsc.eventDispatcher']).service('userActions', UserActions);
 }

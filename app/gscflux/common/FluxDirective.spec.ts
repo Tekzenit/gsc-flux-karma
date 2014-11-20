@@ -1,4 +1,4 @@
-/// <reference path="../application-concat.d.ts" />
+/// <reference path="../application-bundle.d.ts" />
 /// <reference path="../../../typings/jasmine/jasmine.d.ts" />
 
 describe('FluxDirective', () => {

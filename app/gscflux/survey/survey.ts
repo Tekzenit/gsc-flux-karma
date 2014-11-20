@@ -10,8 +10,8 @@ module GSC.Survey {
       this.update();
     }
 
-    public survey: any;
-    public currentUser: any;
+    public survey: Services.Survey.ISurveyModel;
+    public currentUser: Services.User.IUserModel;
     public outerTab: string;
     public innerTab: string;
 
