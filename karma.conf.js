@@ -17,8 +17,9 @@ module.exports = function(config) {
     files: [
       'build/vendor.js',
       'build/main.js',
-      'build/**/*.js',
-      'build/**/*.spec.js'
+      'build/gscflux/tabs/gscTabs.js',
+      'build/gscFlux/application-concat.js',
+      'build/gscFlux/tests-concat.js'
     ],
 
 
@@ -30,6 +31,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      '**/*.js.map': ['sourcemap']
     },
 
 
@@ -60,9 +62,9 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome'],
 
-    autoWatch: false,
+    autoWatch: true,
 
 
     // Continuous Integration mode

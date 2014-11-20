@@ -1,5 +1,5 @@
 /* inject:ts */ /// <reference path="../../references.ts" />
- /* endinject */
+/* endinject */
 
 module GSC.Services.Survey {
 

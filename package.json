@@ -14,7 +14,6 @@
     "gulp-clean": "^0.3.1",
     "gulp-debug": "^1.0.1",
     "gulp-inject": "^1.0.2",
-    "gulp-karma": "0.0.4",
     "gulp-livereload": "^2.1.1",
     "gulp-preprocess": "^1.1.1",
     "gulp-rename": "^1.2.0",
@@ -28,6 +27,7 @@
     "karma-chrome-launcher": "^0.1.5",
     "karma-html-reporter": "^0.2.4",
     "karma-phantomjs-launcher": "^0.1.4",
+    "karma-sourcemap-loader": "^0.3.0",
     "process": "^0.8.0"
   },
   "dependencies": {

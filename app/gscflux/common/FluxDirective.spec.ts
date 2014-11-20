@@ -1,4 +1,5 @@
-/// <reference path="../../../../typings/jasmine/jasmine.d.ts" />
+/// <reference path="../application-concat.d.ts" />
+/// <reference path="../../../typings/jasmine/jasmine.d.ts" />
 
 describe('FluxDirective', () => {
   it('has a function called createFluxDirective that is a function that returns a function', () => {
@@ -8,6 +9,5 @@ describe('FluxDirective', () => {
       controller: () => undefined
     });
     expect(typeof(directive)).toEqual('function')
-    expect(GSC.FluxDirective.TestVal).toEqual("test");
   })
 });

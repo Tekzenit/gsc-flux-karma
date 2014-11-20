@@ -1,5 +1,4 @@
-/* inject:ts */ /// <reference path="../../references.ts" />
- /* endinject */
+
 module GSC.Services.User {
   export class UserService extends EntityService {
     private users: any = [];
