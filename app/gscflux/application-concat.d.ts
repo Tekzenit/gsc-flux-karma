@@ -62,6 +62,27 @@ declare module GSC.Services.EventDispatcher {
         LOGOUT_USER = 4,
     }
 }
+declare module GSC.Services.User {
+    class UserActions {
+        private dispatcher;
+        constructor(dispatcher: EventDispatcher.Dispatcher);
+        public registerUser(user: any): void;
+        public loginUser(user: any): void;
+        public logoutUser(): void;
+    }
+}
+declare module GSC.Services.User {
+    var test: string;
+    class UserService extends EntityService {
+        public dispatcher: EventDispatcher.Dispatcher;
+        private users;
+        private currentUser;
+        constructor(dispatcher: EventDispatcher.Dispatcher);
+        public getUsers(): any;
+        public getCurrentUser(): any;
+        public update(payload: EventDispatcher.Payload): void;
+    }
+}
 declare module GSC.Services.Survey {
     class SurveyActions {
         private dispatcher;
@@ -93,26 +114,6 @@ declare module GSC.Services.Survey {
         public getCurrentUserSurvey(): ISurveyModel;
         private _getCurrentUserSurvey();
         public updateSurveyAction(data: any): void;
-        public update(payload: EventDispatcher.Payload): void;
-    }
-}
-declare module GSC.Services.User {
-    class UserActions {
-        private dispatcher;
-        constructor(dispatcher: EventDispatcher.Dispatcher);
-        public registerUser(user: any): void;
-        public loginUser(user: any): void;
-        public logoutUser(): void;
-    }
-}
-declare module GSC.Services.User {
-    class UserService extends EntityService {
-        public dispatcher: EventDispatcher.Dispatcher;
-        private users;
-        private currentUser;
-        constructor(dispatcher: EventDispatcher.Dispatcher);
-        public getUsers(): any;
-        public getCurrentUser(): any;
         public update(payload: EventDispatcher.Payload): void;
     }
 }

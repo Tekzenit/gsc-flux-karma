@@ -1,5 +1,5 @@
 // Karma configuration
-// Generated on Wed Nov 19 2014 08:46:33 GMT-0600 (Central Standard Time)
+// Generated on Wed Nov 19 2014 19:39:06 GMT-0600 (Central Standard Time)
 
 module.exports = function(config) {
   config.set({
@@ -15,11 +15,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'app/vendor.js',
-      'app/main.js',
-      'app/gscflux/tabs/gscTabs.js',
-      'app/gscFlux/application-concat.js',
-      'app/gscFlux/tests-concat.js'
+      'build/vendor.js',
+      'build/bundle.js',
+      'build/gscflux/gscTabs.js',
+      'build/gscFlux/application-concat.js',
+      'build/gscFlux/tests-concat.js'
     ],
 
 
@@ -30,21 +30,15 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      '**/*.js.map': ['sourcemap']
-    },
+    preprocessors: [
+      {'**/*.*': ''}
+    ],
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'html'],
-
-    // the default configuration
-    htmlReporter: {
-      outputDir: 'karma_html',
-      templatePath: __dirname+'/jasmine_template.html'
-    },
+    reporters: ['progress'],
 
 
     // web server port
@@ -60,11 +54,13 @@ module.exports = function(config) {
     logLevel: config.LOG_INFO,
 
 
+    // enable / disable watching file and executing tests whenever any file changes
+    autoWatch: true,
+
+
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['Chrome'],
-
-    autoWatch: true,
 
 
     // Continuous Integration mode

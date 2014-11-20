@@ -9,7 +9,7 @@ var sass = require('gulp-sass');
 var inject = require("gulp-inject");
 var typescript = require('gulp-tsc');
 var gutil = require('gulp-util');
-var karma = require('karma').server;
+var karma = require('gulp-karma');
 var debug = require('gulp-debug');
 var clean = require('gulp-clean');
 
@@ -32,7 +32,7 @@ gulp.task('build:vendor', [],  function() {
 			});
 		})
 		.pipe(rename('vendor.js'))
-		.pipe(gulp.dest('./app'));
+		.pipe(gulp.dest('./build'));
 });
 
 gulp.task('build:mainjs', [], function() {
@@ -47,20 +47,18 @@ gulp.task('build:mainjs', [], function() {
     })
     .on('error', function(err) {console.error(err)})
     .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./app'));
+    .pipe(gulp.dest('./build'));
 });
 
 gulp.task('build:scss', [], function() {
   return gulp.src('./app/app.scss')
     .pipe(sass())
     .on('error', gutil.log)
-    .pipe(gulp.dest('./app'));
+    .pipe(gulp.dest('./build'));
 });
 
 
-gulp.task('clean-app', function() {
-});
-gulp.task('build:ts', ['clean-app'], function() {
+gulp.task('build:ts', function() {
   return gulp.src(['./app/gscflux/**/*.ts', '!./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.d.ts'], {read: false})
     .pipe(typescript({
       module: 'commonjs',
@@ -69,69 +67,63 @@ gulp.task('build:ts', ['clean-app'], function() {
       out: 'application-concat.js',
       outDir: './app/gscflux'
     })).on('error', gutil.log)
-    .pipe(gulp.dest('./app/gscflux/'));
+    .pipe(gulp.dest('./build/gscflux/'));
 });
 
 gulp.task('index.html', [], function() {
-  gulp.src('./app/_index.html')
+  gulp.src('./app/index.html')
     .pipe(preprocess({
       context: build_options
     }))
     .pipe(rename('index.html'))
-    .pipe(gulp.dest('./app'));
+    .pipe(gulp.dest('./build'));
 });
+
+gulp.task('build:copy', function() {
+  return gulp.src(['./app/gscflux/**/*.html', './app/gscflux/tabs/gscTabs.js']).pipe(gulp.dest('./build/gscflux'));
+})
 
 gulp.task('build:specs', function() {
-  return gulp.src(['./app/gscflux/**/*.spec.ts'], {read: false})
-    .pipe(typescript({
-      module: 'commonjs',
-      sourcemap: true,
-      out: 'tests-concat.js'
-    })).on('error', gutil.log)
-    .pipe(gulp.dest('./app/gscflux'));
+  return gulp.src(['./build/gscflux/application-concat.d.ts']).pipe(gulp.dest('./app/gscflux')).on('end', function() {
+    return gulp.src(['./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.spec.d.ts'], {read: false})
+      .pipe(typescript({
+        module: 'commonjs',
+        sourcemap: true,
+        out: 'tests-concat.js'
+      })).on('error', gutil.log)
+      .pipe(gulp.dest('./build/gscflux'));
+  });
 });
-
-
 // watch for specs to change. if changed, update in app and pipe to build
 gulp.task('watch:tests', function() {
-  return gulp.watch(['./app/gscflux/**/*.spec.ts'], ['build:specs']);
+  return gulp.watch(['./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.spec.d.ts'], ['build:specs']);
 });
 
 // precondition: main.js is ran separately
 // builds the specs file, begin watch and start karma
-gulp.task('test', ['build:specs', 'watch:tests'], function() {
-  karma.start({
-    configFile: __dirname + '/karma.conf.js'
-  }, function(exit) {
-    console.log('karma exited with code ' + exit);
-  });
+gulp.task('test', ['build:specs','watch:tests'], function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(['!./app/gscflux/**/*.spec.ts','./app/gscflux/**/*.ts'], ['build:ts']);
+  gulp.watch(['./app/gscflux/**/*.ts','!./app/gscflux/**/*.spec.ts','!./app/gscflux/**/*.d.ts'], ['build:ts']);
   gulp.watch('./app/style.scss', ['build:scss']);
   gulp.watch('./app/main.js', ['build:mainjs']);
   gulp.watch('./app/index.html', ['index.html']);
 });
 
-gulp.task('serve', ['main','watch'], function() {
-  gulp.src('./app')
+gulp.task('main', ['build:vendor', 'build:mainjs', 'build:scss', 'build:copy', 'build:ts', 'index.html']);
+
+gulp.task('serve', ['main','watch','test'], function() {
+  gulp.src('./build')
     .pipe(webserver({
       port: process.env.PORT || 8000
     }));
   livereload.listen();
 });
 
-
-
-gulp.task('_main', ['clean-app'], function() {
-  gulp.start(['build:vendor', 'build:mainjs', 'build:scss', 'build:ts', 'index.html']);
-});
-gulp.task('main', ['_main']);
-
 gulp.task('dev', function() {
 	build_options.isDev = true;
-	gulp.start(['serve', 'watch']);
+	gulp.start(['serve']);
 });
 
 gulp.task('production', function() {
