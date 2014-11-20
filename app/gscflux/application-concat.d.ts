@@ -21,6 +21,8 @@ declare module GSC.FluxDirective {
     var TestVal: string;
     function createFluxDirective(params: FluxDirectiveParameters, name?: string): () => any;
 }
+declare module GSC.Survey {
+}
 declare module GSC.Services {
     class EntityService {
         public dispatcher: EventDispatcher.Dispatcher;
@@ -35,8 +37,6 @@ declare module GSC.Services {
         public getDispatchToken(): string;
         public update(payload: EventDispatcher.Payload): void;
     }
-}
-declare module GSC.Survey {
 }
 declare module GSC.User {
 }

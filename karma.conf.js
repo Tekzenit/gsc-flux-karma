@@ -15,11 +15,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'build/vendor.js',
-      'build/main.js',
-      'build/gscflux/tabs/gscTabs.js',
-      'build/gscFlux/application-concat.js',
-      'build/gscFlux/tests-concat.js'
+      'app/vendor.js',
+      'app/main.js',
+      'app/gscflux/tabs/gscTabs.js',
+      'app/gscFlux/application-concat.js',
+      'app/gscFlux/tests-concat.js'
     ],
 
 

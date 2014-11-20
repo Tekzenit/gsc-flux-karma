@@ -65,49 +65,6 @@ var GSC;
 })(GSC || (GSC = {}));
 /* inject:ts */ /// <reference path="../references.ts" />
 /* endinject */
-var GSC;
-(function (GSC) {
-    (function (Services) {
-        var EntityService = (function () {
-            function EntityService(dispatcher) {
-                var _this = this;
-                this.dispatcher = dispatcher;
-                this.CHANGE_EVENT = 'change';
-                var EventEmitter = require('events').EventEmitter;
-                this.emitter = new EventEmitter();
-
-                this.register(function (payload) {
-                    return _this.update(payload);
-                });
-            }
-            EntityService.prototype.register = function (callback) {
-                this.dispatchToken = this.dispatcher.register(callback);
-            };
-
-            EntityService.prototype.addChangeListener = function (callback) {
-                this.emitter.on(this.CHANGE_EVENT, callback);
-            };
-            EntityService.prototype.removeChangeListener = function (callback) {
-                this.emitter.removeListener(this.CHANGE_EVENT, callback);
-            };
-            EntityService.prototype.emitChange = function () {
-                this.emitter.emit(this.CHANGE_EVENT);
-            };
-            EntityService.prototype.getDispatchToken = function () {
-                return this.dispatchToken;
-            };
-
-            EntityService.prototype.update = function (payload) {
-                this.emitChange();
-            };
-            return EntityService;
-        })();
-        Services.EntityService = EntityService;
-    })(GSC.Services || (GSC.Services = {}));
-    var Services = GSC.Services;
-})(GSC || (GSC = {}));
-/* inject:ts */ /// <reference path="../references.ts" />
-/* endinject */
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -206,6 +163,49 @@ var GSC;
         }));
     })(GSC.Survey || (GSC.Survey = {}));
     var Survey = GSC.Survey;
+})(GSC || (GSC = {}));
+/* inject:ts */ /// <reference path="../references.ts" />
+/* endinject */
+var GSC;
+(function (GSC) {
+    (function (Services) {
+        var EntityService = (function () {
+            function EntityService(dispatcher) {
+                var _this = this;
+                this.dispatcher = dispatcher;
+                this.CHANGE_EVENT = 'change';
+                var EventEmitter = require('events').EventEmitter;
+                this.emitter = new EventEmitter();
+
+                this.register(function (payload) {
+                    return _this.update(payload);
+                });
+            }
+            EntityService.prototype.register = function (callback) {
+                this.dispatchToken = this.dispatcher.register(callback);
+            };
+
+            EntityService.prototype.addChangeListener = function (callback) {
+                this.emitter.on(this.CHANGE_EVENT, callback);
+            };
+            EntityService.prototype.removeChangeListener = function (callback) {
+                this.emitter.removeListener(this.CHANGE_EVENT, callback);
+            };
+            EntityService.prototype.emitChange = function () {
+                this.emitter.emit(this.CHANGE_EVENT);
+            };
+            EntityService.prototype.getDispatchToken = function () {
+                return this.dispatchToken;
+            };
+
+            EntityService.prototype.update = function (payload) {
+                this.emitChange();
+            };
+            return EntityService;
+        })();
+        Services.EntityService = EntityService;
+    })(GSC.Services || (GSC.Services = {}));
+    var Services = GSC.Services;
 })(GSC || (GSC = {}));
 var GSC;
 (function (GSC) {

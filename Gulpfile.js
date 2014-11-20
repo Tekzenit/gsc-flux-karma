@@ -59,10 +59,9 @@ gulp.task('build:scss', [], function() {
 
 
 gulp.task('clean-app', function() {
-  return gulp.src(['./app/gscflux/application-concat.*']).pipe(clean());
 });
-gulp.task('build:ts', function() {
-  return gulp.src(['./app/gscflux/**/*.ts', '!./app/gscflux/**/*.spec.ts'], {read: false})
+gulp.task('build:ts', ['clean-app'], function() {
+  return gulp.src(['./app/gscflux/**/*.ts', '!./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.d.ts'], {read: false})
     .pipe(typescript({
       module: 'commonjs',
       sourcemap: true,
@@ -109,7 +108,7 @@ gulp.task('test', ['build:specs', 'watch:tests'], function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('./app/gscflux/**/*.ts', ['build:ts']);
+  gulp.watch(['!./app/gscflux/**/*.spec.ts','./app/gscflux/**/*.ts'], ['build:ts']);
   gulp.watch('./app/style.scss', ['build:scss']);
   gulp.watch('./app/main.js', ['build:mainjs']);
   gulp.watch('./app/index.html', ['index.html']);
