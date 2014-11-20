@@ -3,6 +3,6 @@
 
 describe('UserService', () => {
   it('should work', () => {
-    expect(GSC.Services.User.test).toEqual("asd");
+    expect(GSC.Services.User.test).toEqual("123");
   })
 });

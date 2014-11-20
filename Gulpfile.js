@@ -12,6 +12,7 @@ var gutil = require('gulp-util');
 var karma = require('gulp-karma');
 var debug = require('gulp-debug');
 var clean = require('gulp-clean');
+var runSequence = require('run-sequence');
 
 var build_options = {
 	'isDev': true
@@ -21,7 +22,13 @@ var external_libraries = [
  'events', 'jquery', 'angular', 'flux'
 ];
 
-gulp.task('build:vendor', [],  function() {
+// glob for app ts
+var app_ts_glob = ['./app/gscflux/**/*.ts', '!./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.d.ts'];
+var app_specs_glob = ['./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.spec.d.ts'];
+var app_scss_glob = ['./app/app.scss'];
+
+// bundles node dependencies to vendor.js
+gulp.task('build:vendor', function() {
 	return gulp.src('./app/noop.js', {read: false})
 		.pipe(browserify({
 			debug: process.env.NODE_ENV != 'production'
@@ -32,10 +39,11 @@ gulp.task('build:vendor', [],  function() {
 			});
 		})
 		.pipe(rename('vendor.js'))
-		.pipe(gulp.dest('./build'));
+		.pipe(gulp.dest('./app'));
 });
 
-gulp.task('build:mainjs', [], function() {
+// bundles main.js (consumes vendor dependencies) to bundle.js
+gulp.task('build:mainjs', function() {
   return gulp.src('./app/main.js', {read: false})
     .pipe(browserify({
       debug: process.env.NODE_ENV != 'production'
@@ -47,30 +55,44 @@ gulp.task('build:mainjs', [], function() {
     })
     .on('error', function(err) {console.error(err)})
     .pipe(rename('bundle.js'))
-    .pipe(gulp.dest('./build'));
+    .pipe(gulp.dest('./app'));
 });
 
-gulp.task('build:scss', [], function() {
-  return gulp.src('./app/app.scss')
+// bundles app.scss to app.css
+gulp.task('build:scss', function() {
+  return gulp.src(app_scss_glob)
     .pipe(sass())
     .on('error', gutil.log)
-    .pipe(gulp.dest('./build'));
+    .pipe(gulp.dest('./app'));
 });
 
-
+// bundles all the typescript files, avoiding the spec and declaration files into application-bundle.js
 gulp.task('build:ts', function() {
-  return gulp.src(['./app/gscflux/**/*.ts', '!./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.d.ts'], {read: false})
+  return gulp.src(app_ts_glob, {read: false})
     .pipe(typescript({
       module: 'commonjs',
-      sourcemap: true,
+      //sourcemap: true,
       declaration: true,
-      out: 'application-concat.js',
+      out: 'application-bundle.js',
       outDir: './app/gscflux'
     })).on('error', gutil.log)
-    .pipe(gulp.dest('./build/gscflux/'));
+    .pipe(gulp.dest('./app/gscflux/'));
 });
 
-gulp.task('index.html', [], function() {
+// builds all the spec files, ignoring the declarations into tests-bundle.js
+gulp.task('build:specs', function() {
+  return gulp.src(app_specs_glob, {read: false})
+    .pipe(typescript({
+      module: 'commonjs',
+      //sourcemap: true,
+      declaration: true,
+      out: 'tests-bundle.js'
+    })).on('error', gutil.log)
+    .pipe(gulp.dest('./app/gscflux'));
+});
+
+// moves and preprocesses the main html file
+gulp.task('move:index.html', function() {
   gulp.src('./app/index.html')
     .pipe(preprocess({
       context: build_options
@@ -79,60 +101,122 @@ gulp.task('index.html', [], function() {
     .pipe(gulp.dest('./build'));
 });
 
-gulp.task('build:copy', function() {
-  return gulp.src(['./app/gscflux/**/*.html', './app/gscflux/tabs/gscTabs.js']).pipe(gulp.dest('./build/gscflux'));
-})
-
-gulp.task('build:specs', function() {
-  return gulp.src(['./build/gscflux/application-concat.d.ts']).pipe(gulp.dest('./app/gscflux')).on('end', function() {
-    return gulp.src(['./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.spec.d.ts'], {read: false})
-      .pipe(typescript({
-        module: 'commonjs',
-        sourcemap: true,
-        out: 'tests-concat.js'
-      })).on('error', gutil.log)
-      .pipe(gulp.dest('./build/gscflux'));
-  });
-});
-// watch for specs to change. if changed, update in app and pipe to build
-gulp.task('watch:tests', function() {
-  return gulp.watch(['./app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.spec.d.ts'], ['build:specs']);
+gulp.task('move:css', function() {
+  return gulp.src(['./app/app.css']).pipe(gulp.dest('./build'));
 });
 
-// precondition: main.js is ran separately
-// builds the specs file, begin watch and start karma
-gulp.task('test', ['build:specs','watch:tests'], function() {
+gulp.task('move:vendor', function() {
+  return gulp.src(['./app/vendor.js']).pipe(gulp.dest('./build'));
 });
 
-gulp.task('watch', function() {
-  gulp.watch(['./app/gscflux/**/*.ts','!./app/gscflux/**/*.spec.ts','!./app/gscflux/**/*.d.ts'], ['build:ts']);
-  gulp.watch('./app/style.scss', ['build:scss']);
-  gulp.watch('./app/main.js', ['build:mainjs']);
-  gulp.watch('./app/index.html', ['index.html']);
+gulp.task('move:bundle', function() {
+  return gulp.src(['./app/bundle.js']).pipe(gulp.dest('./build'));
 });
 
-gulp.task('main', ['build:vendor', 'build:mainjs', 'build:scss', 'build:copy', 'build:ts', 'index.html']);
+gulp.task('move:gscflux:ts', function() {
+  return gulp.src('./app/gscflux/application-bundle.js')
+    .pipe(gulp.dest('./build/gscflux'));
+});
 
-gulp.task('serve', ['main','watch','test'], function() {
-  gulp.src('./build')
+gulp.task('move:gscflux:other', function() {
+  return gulp.src('./app/gscflux/tabs/gscTabs.js')
+    .pipe(gulp.dest('./build/gscflux'));
+});
+
+gulp.task('move:gscflux:specs', function(){
+  gulp.src('./app/gscflux/tests-bundle.js')
+    .pipe(gulp.dest('./build/gscflux'));
+});
+
+gulp.task('move:gscflux:html', function() {
+  return gulp.src('./app/gscflux/**/*.html')
+    .pipe(gulp.dest('./build/gscflux'));
+});
+
+gulp.task('serve', function() {
+  return gulp.src('./build')
     .pipe(webserver({
       port: process.env.PORT || 8000
     }));
-  livereload.listen();
 });
 
-gulp.task('dev', function() {
-	build_options.isDev = true;
-	gulp.start(['serve']);
+gulp.task('watch', function() {
+  livereload.listen(build_options.REFRESH_PORT || 8001);
+  var update_livereload = function(update) {
+    return function() {
+      livereload.changed(update.path, build_options.REFRESH_PORT || 8001);
+    }
+  };
+
+  gulp.watch('./app/main.js', function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('build:mainjs', 'move:bundle', update_livereload(update));
+    }
+  });
+
+  gulp.watch(app_scss_glob, function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('build:scss', 'move:css', update_livereload(update));
+    }
+  });
+
+  gulp.watch(app_specs_glob, function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('build:specs', 'move:gscflux:specs');
+    }
+  });
+
+  gulp.watch(app_ts_glob, function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('build:ts', 'move:gscflux:ts', update_livereload(update));
+    }
+  });
+
+  gulp.watch('./app/index.html', function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('move:index.html', update_livereload(update));
+    }
+  });
+
+  gulp.watch('./app/gscflux/**/*.html', function(update) {
+    if (update.type == 'changed') {
+      console.log('changed: ' + update.path);
+      runSequence('move:gscflux:html', update_livereload(update));
+    }
+  })
 });
 
-gulp.task('production', function() {
-	build_options.isDev = false;
-	gulp.start(['main']);
+gulp.task('main', function(cb) {
+  return runSequence(
+    ['build:vendor', 'build:mainjs', 'build:scss', 'build:specs', 'build:ts'],
+    [
+      'move:index.html',
+      'move:css',
+      'move:vendor',
+      'move:bundle',
+      'move:gscflux:ts',
+      'move:gscflux:other',
+      'move:gscflux:specs',
+      'move:gscflux:html'
+    ],
+    'watch', 'serve', cb);
 });
 
 gulp.task('default', function() {
 	build_options.isDev = process.env.NODE_ENV != 'production';
 	console.log("running in " + (build_options.isDev ? 'development mode' : 'production mode'));
-	gulp.start((build_options.isDev ? 'dev' : 'production'));
+  build_options.REFRESH_PORT = process.env.REFRESH_PORT || 8001;
+	if (build_options.isDev) {
+    build_options.isDev = true;
+    runSequence('main');
+  }
+  else {
+    build_options.isDev = false;
+    runSequence('main');
+  }
 });

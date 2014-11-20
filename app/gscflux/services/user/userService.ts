@@ -1,6 +1,6 @@
 
 module GSC.Services.User {
-  export var test = "asd";
+  export var test = "123";
   export class UserService extends EntityService {
     private users: any = [];
     private currentUser;

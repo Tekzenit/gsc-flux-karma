@@ -8,6 +8,6 @@ describe('FluxDirective', () => {
       'template': "<p>Hello</p>",
       controller: () => undefined
     });
-    expect(typeof(directive)).toEqual('function')
+    expect(typeof(directive)).toEqual('function');
   })
 });

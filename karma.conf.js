@@ -1,11 +1,11 @@
 // Karma configuration
-// Generated on Wed Nov 19 2014 19:39:06 GMT-0600 (Central Standard Time)
+// Generated on Thu Nov 20 2014 07:05:37 GMT-0600 (Central Standard Time)
 
 module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: './build',
 
 
     // frameworks to use
@@ -15,11 +15,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'build/vendor.js',
-      'build/bundle.js',
-      'build/gscflux/gscTabs.js',
-      'build/gscFlux/application-concat.js',
-      'build/gscFlux/tests-concat.js'
+      'vendor.js',
+      'bundle.js',
+      'gscflux/gscTabs.js',
+      'gscflux/application-bundle.js',
+      'gscflux/tests-bundle.js'
     ],
 
 
@@ -30,9 +30,8 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: [
-      {'**/*.*': ''}
-    ],
+    preprocessors: {
+    },
 
 
     // test results reporter to use

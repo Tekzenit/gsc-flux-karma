@@ -15,10 +15,10 @@
 	<script src="vendor.js"></script>
   <script src="bundle.js"></script>
   <script src="gscflux/gscTabs.js"></script>
-  <script src="gscflux/application-concat.js"></script>
+  <script src="gscflux/application-bundle.js"></script>
 
   <!-- @if isDev==true -->
-  <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+  <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':<!-- @echo REFRESH_PORT -->/livereload.js?snipver=1"></' + 'script>')</script>
   <!-- @endif -->
 
 
