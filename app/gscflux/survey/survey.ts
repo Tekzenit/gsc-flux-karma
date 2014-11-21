@@ -51,26 +51,40 @@ module GSC.Survey {
   }
 
   class SurveySubjectsController extends ModelController {
-    constructor(private surveyActions, private surveyService: Services.Survey.SurveyService) {
+    constructor(private surveyActions, private surveyService: Services.Survey.SurveyService, private $scope: any) {
       super(surveyService);
-        this.update();
+      this.update();
     }
 
-    public subjects;
+    public subjectChoices: GSC.Services.Survey.ISubject[] = [
+      {
+        name: "Art",
+        category: Services.Survey.SubjectCategory.Certificate
+      },
+      {
+        name: "Computer Science",
+        category: Services.Survey.SubjectCategory.Masters
+      }
+    ];
+
+    public subjects: Services.Survey.ISubject[] = [];
 
     public update() {
       var survey = this.surveyService.getCurrentUserSurvey();
       if (survey) {
-        var shuffle = function(o){ //v1.0
-          for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-          return o;
-        };
-        this.subjects = shuffle(survey.subjects);
+        this.subjects = survey.subjects;
       }
     }
 
-    public addSubject() {
-      this.surveyActions.subjects.add({'text': 'subject ' + Math.random()});
+    public addSubject(subject: Services.Survey.ISubject) {
+      this.$scope.selectedSubject = undefined;
+      if (this.subjects.filter(s => angular.equals(s, subject)).length != 0) {
+        return;
+      }
+      this.surveyActions.subjects.add(subject);
+    }
+    public removeSubject(subject: Services.Survey.ISubject) {
+      this.surveyActions.subjects.remove(subject);
     }
   }
 

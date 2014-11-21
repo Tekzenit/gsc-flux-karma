@@ -1,7 +1,7 @@
-<button ng-click="view.addSubject()">Add subject</button>
-
+<select ng-model="selectedSubject" ng-change="view.addSubject(selectedSubject)" ng-options="subject.name for subject in view.subjectChoices">
+</select>
 <ul>
   <li ng-repeat="subject in view.subjects track by $index">
-    <test-directive>{{subject}}</test-directive>
+    {{subject.name}} <button ng-click="view.removeSubject(subject)">remove</button>
   </li>
 </ul>

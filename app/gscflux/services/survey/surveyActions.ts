@@ -19,13 +19,25 @@ module GSC.Services.Survey {
         })
     };
     public subjects = {
-      add: (subject) =>
+      add: (subject: Services.Survey.ISubject) =>
         this.dispatcher.dispatch({
           type: EventDispatcher.PayloadType.UPDATE_SURVEY,
           data: {
             property: "subjects",
             value: (survey: Services.Survey.ISurveyModel) => {
-              survey.subjects.push(subject)
+              survey.subjects.push(angular.copy(subject));
+            }
+          }
+        }),
+      remove: (subject: Services.Survey.ISubject) =>
+        this.dispatcher.dispatch({
+          type: EventDispatcher.PayloadType.UPDATE_SURVEY,
+          data: {
+            property: "subjects",
+            value: (survey: Services.Survey.ISurveyModel) => {
+              survey.subjects = survey.subjects.filter(s => {
+                return !angular.equals(subject, s);
+              });
             }
           }
         })

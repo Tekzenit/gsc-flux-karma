@@ -21,6 +21,8 @@ declare module GSC.FluxDirective {
     var TestVal: string;
     function createFluxDirective(params: FluxDirectiveParameters, name?: string): () => any;
 }
+declare module GSC.Survey {
+}
 declare module GSC.Services {
     class EntityService {
         public dispatcher: EventDispatcher.Dispatcher;
@@ -35,8 +37,6 @@ declare module GSC.Services {
         public getDispatchToken(): string;
         public update(payload: EventDispatcher.Payload): void;
     }
-}
-declare module GSC.Survey {
 }
 declare module GSC.User {
 }
@@ -60,42 +60,6 @@ declare module GSC.Services.EventDispatcher {
         REGISTER_USER = 2,
         LOGIN_USER = 3,
         LOGOUT_USER = 4,
-    }
-}
-declare module GSC.Services.Survey {
-    class SurveyActions {
-        private dispatcher;
-        constructor(dispatcher: EventDispatcher.Dispatcher);
-        public location: {
-            importance: (importance: any) => void;
-        };
-        public subjects: {
-            add: (subject: any) => void;
-        };
-    }
-}
-declare module GSC.Services.Survey {
-    interface ISurveyLocationModel {
-        importance: string;
-    }
-    interface ISurveyModel {
-        userName: string;
-        subjects: any[];
-        location: ISurveyLocationModel;
-    }
-}
-declare module GSC.Services.Survey {
-    class SurveyService extends EntityService {
-        public dispatcher: EventDispatcher.Dispatcher;
-        private userService;
-        private surveys;
-        private currentUser;
-        constructor(dispatcher: EventDispatcher.Dispatcher, userService: User.UserService);
-        public getAllSurveys(): ISurveyModel[];
-        public getCurrentUserSurvey(): ISurveyModel;
-        private _getCurrentUserSurvey();
-        public updateSurveyAction(data: any): void;
-        public update(payload: EventDispatcher.Payload): void;
     }
 }
 declare module GSC.Services.User {
@@ -135,6 +99,67 @@ declare module GSC.Services.User {
         constructor(dispatcher: EventDispatcher.Dispatcher);
         public getUsers(): IUserModel[];
         public getCurrentUser(): IUserModel;
+        public update(payload: EventDispatcher.Payload): void;
+    }
+}
+declare module GSC.Services.Survey {
+    class SurveyActions {
+        private dispatcher;
+        constructor(dispatcher: EventDispatcher.Dispatcher);
+        public location: {
+            importance: (importance: any) => void;
+        };
+        public subjects: {
+            add: (subject: ISubject) => void;
+            remove: (subject: ISubject) => void;
+        };
+    }
+}
+declare module GSC.Services.Survey {
+    interface ISurveyLocationModel {
+        importance: string;
+    }
+    enum SubjectCategory {
+        Doctoral = 0,
+        Masters = 1,
+        Certificate = 2,
+    }
+    enum SurveyMediaType {
+        OnlineOnly = 0,
+        OnlineAndOffline = 1,
+        OfflineOnly = 2,
+    }
+    interface ISubject {
+        category: SubjectCategory;
+        name: string;
+    }
+    interface IDegree {
+        subject: ISubject;
+        type: string;
+    }
+    interface ISurveySubjectsModel {
+        category: SubjectCategory;
+        mediaType: SurveyMediaType;
+        subjects: ISubject[];
+        degreeTypes: string[];
+    }
+    interface ISurveyModel {
+        userName: string;
+        subjects: ISubject[];
+        location: ISurveyLocationModel;
+    }
+}
+declare module GSC.Services.Survey {
+    class SurveyService extends EntityService {
+        public dispatcher: EventDispatcher.Dispatcher;
+        private userService;
+        private surveys;
+        private currentUser;
+        constructor(dispatcher: EventDispatcher.Dispatcher, userService: User.UserService);
+        public getAllSurveys(): ISurveyModel[];
+        public getCurrentUserSurvey(): ISurveyModel;
+        private _getCurrentUserSurvey();
+        public updateSurveyAction(data: any): void;
         public update(payload: EventDispatcher.Payload): void;
     }
 }

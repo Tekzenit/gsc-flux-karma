@@ -7,13 +7,15 @@
 
 
     <div>Survey for {{view.currentUser.name}}</div>
-    <button ng-click="view.innerTab='location'">location</button> <button ng-click="view.innerTab='subjects'">subjects</button>
+    <button ng-click="view.innerTab='subjects'">subjects</button>
+    <button ng-click="view.innerTab='location'">location</button>
+
     <gsc-tabs selected-tab="view.innerTab">
-      <gsc-tab name="location">
-        <gsc-survey-location></gsc-survey-location>
-      </gsc-tab>
       <gsc-tab name="subjects">
         <gsc-survey-subjects></gsc-survey-subjects>
+      </gsc-tab>
+      <gsc-tab name="location">
+        <gsc-survey-location></gsc-survey-location>
       </gsc-tab>
     </gsc-tabs>
 

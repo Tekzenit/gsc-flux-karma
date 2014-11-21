@@ -71,7 +71,7 @@ gulp.task('build:ts', function() {
   return gulp.src(app_ts_glob, {read: false})
     .pipe(typescript({
       module: 'commonjs',
-      //sourcemap: true,
+      sourcemap: true,
       declaration: true,
       out: 'application-bundle.js',
       outDir: './app/gscflux/'
@@ -84,7 +84,7 @@ gulp.task('build:specs', function() {
   return gulp.src(app_specs_glob, {read: false})
     .pipe(typescript({
       module: 'commonjs',
-      //sourcemap: true,
+      sourcemap: true,
       declaration: true,
       out: 'tests-bundle.js',
       outDir: './app/gscflux/'
@@ -115,17 +115,17 @@ gulp.task('move:bundle', function() {
 });
 
 gulp.task('move:gscflux:ts', function() {
-  return gulp.src('./app/gscflux/application-bundle.js')
+  return gulp.src(['./app/gscflux/application-bundle.js*', './app/gscflux/**/*.ts', '!./app/gscflux/**/*.d.ts', '!./app/gscflux/**/*.spec.ts'])
     .pipe(gulp.dest('./build/gscflux'));
 });
 
 gulp.task('move:gscflux:other', function() {
-  return gulp.src('./app/gscflux/tabs/gscTabs.js')
+  return gulp.src(['./app/gscflux/tabs/gscTabs.js', './app/gscflux/**/*.spec.ts', '!./app/gscflux/**/*.ts'])
     .pipe(gulp.dest('./build/gscflux'));
 });
 
 gulp.task('move:gscflux:specs', function(){
-  gulp.src('./app/gscflux/tests-bundle.js')
+  gulp.src('./app/gscflux/tests-bundle.js*')
     .pipe(gulp.dest('./build/gscflux'));
 });
 
@@ -143,6 +143,7 @@ gulp.task('serve', function() {
 
 gulp.task('watch', function() {
   livereload.listen(build_options.REFRESH_PORT || 8001);
+  livereload.changed();
   var update_livereload = function(update) {
     return function() {
       livereload.changed(update.path, build_options.REFRESH_PORT || 8001);

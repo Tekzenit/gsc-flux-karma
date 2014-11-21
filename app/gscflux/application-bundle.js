@@ -65,49 +65,6 @@ var GSC;
 })(GSC || (GSC = {}));
 /* inject:ts */ /// <reference path="../references.ts" />
 /* endinject */
-var GSC;
-(function (GSC) {
-    (function (Services) {
-        var EntityService = (function () {
-            function EntityService(dispatcher) {
-                var _this = this;
-                this.dispatcher = dispatcher;
-                this.CHANGE_EVENT = 'change';
-                var EventEmitter = require('events').EventEmitter;
-                this.emitter = new EventEmitter();
-
-                this.register(function (payload) {
-                    return _this.update(payload);
-                });
-            }
-            EntityService.prototype.register = function (callback) {
-                this.dispatchToken = this.dispatcher.register(callback);
-            };
-
-            EntityService.prototype.addChangeListener = function (callback) {
-                this.emitter.on(this.CHANGE_EVENT, callback);
-            };
-            EntityService.prototype.removeChangeListener = function (callback) {
-                this.emitter.removeListener(this.CHANGE_EVENT, callback);
-            };
-            EntityService.prototype.emitChange = function () {
-                this.emitter.emit(this.CHANGE_EVENT);
-            };
-            EntityService.prototype.getDispatchToken = function () {
-                return this.dispatchToken;
-            };
-
-            EntityService.prototype.update = function (payload) {
-                this.emitChange();
-            };
-            return EntityService;
-        })();
-        Services.EntityService = EntityService;
-    })(GSC.Services || (GSC.Services = {}));
-    var Services = GSC.Services;
-})(GSC || (GSC = {}));
-/* inject:ts */ /// <reference path="../references.ts" />
-/* endinject */
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -170,26 +127,42 @@ var GSC;
 
         var SurveySubjectsController = (function (_super) {
             __extends(SurveySubjectsController, _super);
-            function SurveySubjectsController(surveyActions, surveyService) {
+            function SurveySubjectsController(surveyActions, surveyService, $scope) {
                 _super.call(this, surveyService);
                 this.surveyActions = surveyActions;
                 this.surveyService = surveyService;
+                this.$scope = $scope;
+                this.subjectChoices = [
+                    {
+                        name: "Art",
+                        category: 2 /* Certificate */
+                    },
+                    {
+                        name: "Computer Science",
+                        category: 1 /* Masters */
+                    }
+                ];
+                this.subjects = [];
                 this.update();
             }
             SurveySubjectsController.prototype.update = function () {
                 var survey = this.surveyService.getCurrentUserSurvey();
                 if (survey) {
-                    var shuffle = function (o) {
-                        for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x)
-                            ;
-                        return o;
-                    };
-                    this.subjects = shuffle(survey.subjects);
+                    this.subjects = survey.subjects;
                 }
             };
 
-            SurveySubjectsController.prototype.addSubject = function () {
-                this.surveyActions.subjects.add({ 'text': 'subject ' + Math.random() });
+            SurveySubjectsController.prototype.addSubject = function (subject) {
+                this.$scope.selectedSubject = undefined;
+                if (this.subjects.filter(function (s) {
+                    return angular.equals(s, subject);
+                }).length != 0) {
+                    return;
+                }
+                this.surveyActions.subjects.add(subject);
+            };
+            SurveySubjectsController.prototype.removeSubject = function (subject) {
+                this.surveyActions.subjects.remove(subject);
             };
             return SurveySubjectsController;
         })(GSC.ModelController);
@@ -206,6 +179,49 @@ var GSC;
         }));
     })(GSC.Survey || (GSC.Survey = {}));
     var Survey = GSC.Survey;
+})(GSC || (GSC = {}));
+/* inject:ts */ /// <reference path="../references.ts" />
+/* endinject */
+var GSC;
+(function (GSC) {
+    (function (Services) {
+        var EntityService = (function () {
+            function EntityService(dispatcher) {
+                var _this = this;
+                this.dispatcher = dispatcher;
+                this.CHANGE_EVENT = 'change';
+                var EventEmitter = require('events').EventEmitter;
+                this.emitter = new EventEmitter();
+
+                this.register(function (payload) {
+                    return _this.update(payload);
+                });
+            }
+            EntityService.prototype.register = function (callback) {
+                this.dispatchToken = this.dispatcher.register(callback);
+            };
+
+            EntityService.prototype.addChangeListener = function (callback) {
+                this.emitter.on(this.CHANGE_EVENT, callback);
+            };
+            EntityService.prototype.removeChangeListener = function (callback) {
+                this.emitter.removeListener(this.CHANGE_EVENT, callback);
+            };
+            EntityService.prototype.emitChange = function () {
+                this.emitter.emit(this.CHANGE_EVENT);
+            };
+            EntityService.prototype.getDispatchToken = function () {
+                return this.dispatchToken;
+            };
+
+            EntityService.prototype.update = function (payload) {
+                this.emitChange();
+            };
+            return EntityService;
+        })();
+        Services.EntityService = EntityService;
+    })(GSC.Services || (GSC.Services = {}));
+    var Services = GSC.Services;
 })(GSC || (GSC = {}));
 var GSC;
 (function (GSC) {
@@ -313,137 +329,6 @@ var GSC;
 var GSC;
 (function (GSC) {
     (function (Services) {
-        (function (Survey) {
-            var SurveyActions = (function () {
-                function SurveyActions(dispatcher) {
-                    var _this = this;
-                    this.dispatcher = dispatcher;
-                    this.location = {
-                        importance: function (importance) {
-                            return _this.dispatcher.dispatch({
-                                type: 0 /* UPDATE_SURVEY */,
-                                data: {
-                                    property: "location.importance",
-                                    value: function (survey) {
-                                        survey.location.importance = importance;
-                                    }
-                                }
-                            });
-                        }
-                    };
-                    this.subjects = {
-                        add: function (subject) {
-                            return _this.dispatcher.dispatch({
-                                type: 0 /* UPDATE_SURVEY */,
-                                data: {
-                                    property: "subjects",
-                                    value: function (survey) {
-                                        survey.subjects.push(subject);
-                                    }
-                                }
-                            });
-                        }
-                    };
-                }
-                return SurveyActions;
-            })();
-            Survey.SurveyActions = SurveyActions;
-
-            angular.module('gsc.surveyActions', []).service('surveyActions', SurveyActions);
-        })(Services.Survey || (Services.Survey = {}));
-        var Survey = Services.Survey;
-    })(GSC.Services || (GSC.Services = {}));
-    var Services = GSC.Services;
-})(GSC || (GSC = {}));
-/* inject:ts */ /// <reference path="../../references.ts" />
-/* endinject */
-var GSC;
-(function (GSC) {
-    (function (Services) {
-        (function (Survey) {
-            var SurveyService = (function (_super) {
-                __extends(SurveyService, _super);
-                function SurveyService(dispatcher, userService) {
-                    _super.call(this, dispatcher);
-                    this.dispatcher = dispatcher;
-                    this.userService = userService;
-                    this.surveys = [];
-                }
-                SurveyService.prototype.getAllSurveys = function () {
-                    var surveyViewModel = angular.copy(this.surveys);
-                    Object.freeze(surveyViewModel);
-                    return surveyViewModel;
-                };
-
-                SurveyService.prototype.getCurrentUserSurvey = function () {
-                    var survey = this._getCurrentUserSurvey();
-                    if (survey) {
-                        var surveyViewModel = angular.copy(survey);
-                        Object.freeze(surveyViewModel);
-                        return surveyViewModel;
-                    }
-                };
-
-                SurveyService.prototype._getCurrentUserSurvey = function () {
-                    var _this = this;
-                    if (this.currentUser) {
-                        var results = this.surveys.filter(function (survey) {
-                            return survey.userName == _this.currentUser.name;
-                        });
-                        if (results.length > 0) {
-                            return results[0];
-                        }
-                    }
-                };
-
-                SurveyService.prototype.updateSurveyAction = function (data) {
-                    var currentUserSurvey = this._getCurrentUserSurvey();
-                    if (currentUserSurvey) {
-                        data.value(currentUserSurvey);
-                    }
-                };
-
-                SurveyService.prototype.update = function (payload) {
-                    var _this = this;
-                    this.dispatcher.waitFor(this.userService.getDispatchToken);
-                    switch (payload.type) {
-                        case 0 /* UPDATE_SURVEY */:
-                            this.updateSurveyAction(payload.data);
-                            break;
-                        case 3 /* LOGIN_USER */:
-                            this.currentUser = payload.data;
-                            var results = this.surveys.filter(function (survey) {
-                                return survey.userName == _this.currentUser.name;
-                            });
-                            if (results.length == 0) {
-                                this.surveys.push({
-                                    subjects: [],
-                                    userName: this.currentUser.name,
-                                    location: {
-                                        importance: undefined
-                                    }
-                                });
-                            }
-                            break;
-                    }
-
-                    _super.prototype.update.call(this, payload);
-                };
-                return SurveyService;
-            })(Services.EntityService);
-            Survey.SurveyService = SurveyService;
-
-            angular.module('gsc.services.survey', ['gsc.eventDispatcher', 'gsc.services.user']).service('surveyService', SurveyService);
-        })(Services.Survey || (Services.Survey = {}));
-        var Survey = Services.Survey;
-    })(GSC.Services || (GSC.Services = {}));
-    var Services = GSC.Services;
-})(GSC || (GSC = {}));
-/* inject:ts */ /// <reference path="../../references.ts" />
-/* endinject */
-var GSC;
-(function (GSC) {
-    (function (Services) {
         (function (User) {
             var UserActions = (function () {
                 function UserActions(dispatcher) {
@@ -542,3 +427,170 @@ var GSC;
     })(GSC.Services || (GSC.Services = {}));
     var Services = GSC.Services;
 })(GSC || (GSC = {}));
+/* inject:ts */ /// <reference path="../../references.ts" />
+/* endinject */
+var GSC;
+(function (GSC) {
+    (function (Services) {
+        (function (Survey) {
+            var SurveyActions = (function () {
+                function SurveyActions(dispatcher) {
+                    var _this = this;
+                    this.dispatcher = dispatcher;
+                    this.location = {
+                        importance: function (importance) {
+                            return _this.dispatcher.dispatch({
+                                type: 0 /* UPDATE_SURVEY */,
+                                data: {
+                                    property: "location.importance",
+                                    value: function (survey) {
+                                        survey.location.importance = importance;
+                                    }
+                                }
+                            });
+                        }
+                    };
+                    this.subjects = {
+                        add: function (subject) {
+                            return _this.dispatcher.dispatch({
+                                type: 0 /* UPDATE_SURVEY */,
+                                data: {
+                                    property: "subjects",
+                                    value: function (survey) {
+                                        survey.subjects.push(angular.copy(subject));
+                                    }
+                                }
+                            });
+                        },
+                        remove: function (subject) {
+                            return _this.dispatcher.dispatch({
+                                type: 0 /* UPDATE_SURVEY */,
+                                data: {
+                                    property: "subjects",
+                                    value: function (survey) {
+                                        survey.subjects = survey.subjects.filter(function (s) {
+                                            return !angular.equals(subject, s);
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    };
+                }
+                return SurveyActions;
+            })();
+            Survey.SurveyActions = SurveyActions;
+
+            angular.module('gsc.surveyActions', []).service('surveyActions', SurveyActions);
+        })(Services.Survey || (Services.Survey = {}));
+        var Survey = Services.Survey;
+    })(GSC.Services || (GSC.Services = {}));
+    var Services = GSC.Services;
+})(GSC || (GSC = {}));
+var GSC;
+(function (GSC) {
+    (function (Services) {
+        (function (Survey) {
+            (function (SubjectCategory) {
+                SubjectCategory[SubjectCategory["Doctoral"] = 0] = "Doctoral";
+                SubjectCategory[SubjectCategory["Masters"] = 1] = "Masters";
+                SubjectCategory[SubjectCategory["Certificate"] = 2] = "Certificate";
+            })(Survey.SubjectCategory || (Survey.SubjectCategory = {}));
+            var SubjectCategory = Survey.SubjectCategory;
+
+            (function (SurveyMediaType) {
+                SurveyMediaType[SurveyMediaType["OnlineOnly"] = 0] = "OnlineOnly";
+                SurveyMediaType[SurveyMediaType["OnlineAndOffline"] = 1] = "OnlineAndOffline";
+                SurveyMediaType[SurveyMediaType["OfflineOnly"] = 2] = "OfflineOnly";
+            })(Survey.SurveyMediaType || (Survey.SurveyMediaType = {}));
+            var SurveyMediaType = Survey.SurveyMediaType;
+        })(Services.Survey || (Services.Survey = {}));
+        var Survey = Services.Survey;
+    })(GSC.Services || (GSC.Services = {}));
+    var Services = GSC.Services;
+})(GSC || (GSC = {}));
+/* inject:ts */ /// <reference path="../../references.ts" />
+/* endinject */
+var GSC;
+(function (GSC) {
+    (function (Services) {
+        (function (Survey) {
+            var SurveyService = (function (_super) {
+                __extends(SurveyService, _super);
+                function SurveyService(dispatcher, userService) {
+                    _super.call(this, dispatcher);
+                    this.dispatcher = dispatcher;
+                    this.userService = userService;
+                    this.surveys = [];
+                }
+                SurveyService.prototype.getAllSurveys = function () {
+                    var surveyViewModel = angular.copy(this.surveys);
+                    Object.freeze(surveyViewModel);
+                    return surveyViewModel;
+                };
+
+                SurveyService.prototype.getCurrentUserSurvey = function () {
+                    var survey = this._getCurrentUserSurvey();
+                    if (survey) {
+                        var surveyViewModel = angular.copy(survey);
+                        Object.freeze(surveyViewModel);
+                        return surveyViewModel;
+                    }
+                };
+
+                SurveyService.prototype._getCurrentUserSurvey = function () {
+                    var _this = this;
+                    if (this.currentUser) {
+                        var results = this.surveys.filter(function (survey) {
+                            return survey.userName == _this.currentUser.name;
+                        });
+                        if (results.length > 0) {
+                            return results[0];
+                        }
+                    }
+                };
+
+                SurveyService.prototype.updateSurveyAction = function (data) {
+                    var currentUserSurvey = this._getCurrentUserSurvey();
+                    if (currentUserSurvey) {
+                        data.value(currentUserSurvey);
+                    }
+                };
+
+                SurveyService.prototype.update = function (payload) {
+                    var _this = this;
+                    this.dispatcher.waitFor(this.userService.getDispatchToken);
+                    switch (payload.type) {
+                        case 0 /* UPDATE_SURVEY */:
+                            this.updateSurveyAction(payload.data);
+                            break;
+                        case 3 /* LOGIN_USER */:
+                            this.currentUser = payload.data;
+                            var results = this.surveys.filter(function (survey) {
+                                return survey.userName == _this.currentUser.name;
+                            });
+                            if (results.length == 0) {
+                                this.surveys.push({
+                                    subjects: [],
+                                    userName: this.currentUser.name,
+                                    location: {
+                                        importance: undefined
+                                    }
+                                });
+                            }
+                            break;
+                    }
+
+                    _super.prototype.update.call(this, payload);
+                };
+                return SurveyService;
+            })(Services.EntityService);
+            Survey.SurveyService = SurveyService;
+
+            angular.module('gsc.services.survey', ['gsc.eventDispatcher', 'gsc.services.user']).service('surveyService', SurveyService);
+        })(Services.Survey || (Services.Survey = {}));
+        var Survey = Services.Survey;
+    })(GSC.Services || (GSC.Services = {}));
+    var Services = GSC.Services;
+})(GSC || (GSC = {}));
+//# sourceMappingURL=application-bundle.js.map
